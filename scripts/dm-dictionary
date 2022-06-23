@@ -2,7 +2,7 @@
 #
 # Script name: dm-dictionary
 # Description: uses the translate package as a dictionary
-# Dependencies: translate-shell
+# Dependencies: translate-shell, didyoumean
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Francesco Prem Solidoro
