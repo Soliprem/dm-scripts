@@ -35,12 +35,8 @@ languages() {
         ${DMENU} 'Language: ' "$@") || exit 1
 
     if [ "$choice" ]; then
-      if [ "$choice" = "" ]; then
-        lang=$(printf 'en')
-      else
         lang=$(printf '%s\n' "${choice}/")
         wikipages "$@"
-      fi
     else
         echo "Program terminated." && exit 0
     fi
