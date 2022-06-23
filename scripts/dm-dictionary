@@ -32,7 +32,7 @@ WORD="$(${DMENU} "Search:")"
 TESTWORD="$(dym -c -n=1 "$WORD")"
 
 if [ "$WORD" != "$TESTWORD" ]; then
-	KEYWORD=$(dym -c "$WORD" | rofi -dmenu -p "was $WORD a misspelling?(select/no)")
+	KEYWORD=$(dym -c "$WORD" | ${DMENU} "was $WORD a misspelling?(select/no)")
 	if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
 		KEYWORD="$WORD"
 	fi
