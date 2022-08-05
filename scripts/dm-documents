@@ -26,7 +26,7 @@ fi
 source "$(get_config)"
 
 main(){
-  PDF_VIEWER=zathura
+  # PDF_VIEWER=zathura
   files="$(find "$HOME" -maxdepth 4 -iname "*.pdf")"
   choice=$( printf '%s\n' "${files[@]}" | \
         cut -d '/' -f4- | \
