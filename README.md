@@ -1,4 +1,5 @@
-# Dmenu Scripts (dmscripts)
+# Soliprem's Dmenu Scripts (dmscripts)
+This is a fork of DTs project "dmscripts". It was detatched beacuse it was getting too bloated for the main version.
 
 The scripts included in this repo are:
 
@@ -22,6 +23,7 @@ The scripts included in this repo are:
 + dm-setbg - A wallpaper setting utility using dmenu, xwallpaper and sxiv
 + dm-sounds - Choose an ambient background to play.
 + dm-spellcheck - Script to check spellings
++ dm-specials - a script to have special strings
 + dm-translate - Translate using Google Translate (through Lingva Translate)
 + dm-usbmount - mount/unmount usb drives using dmenu. No fancy daemon required
 + dm-weather - Simple graphical weather app
