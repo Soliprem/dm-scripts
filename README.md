@@ -90,12 +90,6 @@ $ makepkg -cf
 $ sudo pacman -U *.pkg.tar.zst
 ```
 
-Alternatively, you could install dmscripts from the AUR using an AUR helper such as yay:
-
-```bash
-$ yay -S dmscripts-git
-```
-
 Once installed, the scripts should behave like any other command and can be run by typing the script's name.
 
 NOTE: When installing dmscripts-git, you will see a list of Haskell dependencies that will be installed. This is because one of the make dependencies, pandoc, is written in Haskell. Simply enter "y" on the prompt "Remove make dependencies after install" and those programs should go away. Alternatively, [this AUR package](https://aur.archlinux.org/packages/pandoc-bin/) can be downloaded and used as a drop-in replacement if you wish to use the program afterwards.

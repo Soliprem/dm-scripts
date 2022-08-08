@@ -27,7 +27,7 @@ fi
 source "$(get_config)"
 
 main(){
-  specials=("ə" "¯\\_(ツ)_/¯" "(╯°□°）╯︵ ┻━┻" "┬─┬ ノ( ゜-゜ノ)" "∈]-∞; 3[")
+  specials=("ə" "¯\\_(ツ)_/¯" "(╯°□°）╯︵ ┻━┻" "┬─┬ ノ( ゜-゜ノ)" "∈]-∞; 3[" "( ͡° ͜ʖ ͡°)" "(づ๑•ᴗ•๑)づ♡" "( ´･ω･)人(・ω・｀ )" "ʚ♡⃛ɞ(•ᴗ•❁)")
   printf "%s\n", "${specials[@]}"  | ${DMENU} "Special Characters: ", "$@" | sed -e "s/,//" | xclip -selection clipboard
 }
 
