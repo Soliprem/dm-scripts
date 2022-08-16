@@ -1,5 +1,5 @@
 # Soliprem's Dmenu Scripts (dmscripts)
-This is a fork of DTs project "dmscripts". It was detatched beacuse it was getting too bloated for the main version.
+This is a fork of DTs project "dmscripts". It was detatched beacuse it wants to add scripts that wouldn't make it to upstream.
 
 The scripts included in this repo are:
 
@@ -20,6 +20,7 @@ The scripts included in this repo are:
 + dm-radio - Choose between online radio stations with dmenu.
 + dm-record - Records audio, video and webcam.
 + dm-reddit - Dmenu as a reddit viewer using reddio. *STILL A WORK IN PROGRESS*
++ dm-rice - WIP to change colorschemes of WMs etc
 + dm-setbg - A wallpaper setting utility using dmenu, xwallpaper and sxiv
 + dm-sounds - Choose an ambient background to play.
 + dm-spellcheck - Script to check spellings
