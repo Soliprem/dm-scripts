@@ -26,7 +26,6 @@ fi
 source "$(get_config)"
 
 main(){
-  # PDF_VIEWER=zathura
   files="$(find "$HOME" -maxdepth 5 -iname "*.pdf")"
   choice=$( printf '%s\n' "${files[@]}" | \
         cut -d '/' -f4- | \
@@ -46,7 +45,7 @@ main(){
         -e 's/Pic/Pictures/g' \
         -e 's/Img/Images/g' \
   )
-        "${PDF_VIEWER}" "$HOME/${file}.pdf"
+        xdg-open "$HOME/${file}.pdf"
   else
     echo "Program Terminated." && exit 0
   fi

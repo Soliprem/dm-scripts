@@ -28,7 +28,7 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
-# Set wallpaper using either xwallpaper or swaybf
+# Set wallpaper using either xwallpaper or swaybg
 setbg() {
   case "$XDG_SESSION_TYPE" in
     'x11') xwallpaper --stretch "$1";;

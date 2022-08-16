@@ -28,7 +28,11 @@ source "$(get_config)"
 
 main(){
   specials=("ə" "¯\\_(ツ)_/¯" "(╯°□°）╯︵ ┻━┻" "┬─┬ ノ( ゜-゜ノ)" "∈]-∞; 3[" "( ͡° ͜ʖ ͡°)" "(づ๑•ᴗ•๑)づ♡" "( ´･ω･)人(・ω・｀ )" "ʚ♡⃛ɞ(•ᴗ•❁)")
+  if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+  printf "%s\n", "${specials[@]}"  | ${DMENU} "Special Characters: ", "$@" | sed -e "s/,//" | wl-copy
+else
   printf "%s\n", "${specials[@]}"  | ${DMENU} "Special Characters: ", "$@" | sed -e "s/,//" | xclip -selection clipboard
+  fi
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
