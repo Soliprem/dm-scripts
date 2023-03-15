@@ -28,7 +28,10 @@ source "$(get_config)"
 
 main() {
 
-WORD="$(${DMENU} "Search:")"
+# dmenu expects some sort of input piped into it.
+# The echo to /dev/null is just a hacky way of giving
+# dmenu some input without really giving any input.
+WORD="$(echo "" >/dev/null | ${DMENU} "Enter word to lookup:")"
 TESTWORD="$(dym -c -n=1 "$WORD")"
 
 if [ "$WORD" != "$TESTWORD" ]; then
