@@ -17,6 +17,8 @@
 # 1. dmenu
 # 2. mpd(music player daemon)
 # 3. mpc(terminal command to access mpd)
+# 4. wildmidi
+# 5. timidity++
 
 # Sample mpd config to be placed in $HOME/.config/mpd/mpd.conf
 # music_directory		"~/music"
