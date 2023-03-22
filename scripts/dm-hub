@@ -26,7 +26,9 @@ function main() {
     _self=$(basename "$0")
 
     while IFS= read -r -d '' script; do
-        script_name="$(basename "${script}")"
+        # Every 'dmscript' should contain a line that begins with "# Description: ".
+        # Let's take that description and add it next to the script name in the dmenu.
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
         [[ "${script_name}" == "${_self}" ]] && continue
         _scripts[${script_name}]="${script}"
     done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
@@ -34,7 +36,7 @@ function main() {
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${DMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
-        bash "$(printf '%s\n' "${_scripts["${choice}"]}")" "$@"
+        bash "$(printf '%s\n' "${_scripts["${choice}"]}" | awk '{print $1}')" "$@"
     else
         echo "Program terminated." && exit 0
     fi
