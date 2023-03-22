@@ -13,11 +13,15 @@ makedepends=(pandoc git)
 checkdepends=()
 optdepends=(
   'emacs: editor for dm-confedit'
+  'didyoumean: used by dm-dictionary'
+  'translate-shell: used by dm-dictionary'
   'libnotify: used by dm-logout'
   'maim: used by dm-main'
   'pipewire: used by dm-pipewire-out-switcher'
   'mpc: used by dm-music'
   'mpd: used by dm-music'
+  'timidity++: used by dm-music'
+  'wildmidi: used by dm-music'
   'qutebrowser: used by dm-bookman'
   'reddio: used by dm-reddit'
   'yad: used by dm-reddit and dm-weather'

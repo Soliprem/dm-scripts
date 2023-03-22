@@ -27,7 +27,7 @@ fi
 source "$(get_config)"
 
 main() {
-WORD="$(${DMENU} "Enter Word:")"
+WORD="$(echo "" | ${DMENU} "Enter Word:")"
 
 if ! [ "${WORD}" ] || [ "${WORD}" = "quit" ]; then
 	printf 'No word inserted\n' >&2

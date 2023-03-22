@@ -1,38 +1,27 @@
 #!/usr/bin/env bash
-
-# script name: dm-music
-
-# Author: Murtaza Udaipurwala
-
-# Description:
-# - Music player using dmenu
-# - A simpler alternative to music players like ncmpcpp, moc, cmus
-# - Uses mpd in the backend
-
-# Features
-# - Select and play music from mpd music directory
-# - Queue a playlist
-
-# Dependencies:
-# 1. dmenu
-# 2. mpd(music player daemon)
-# 3. mpc(terminal command to access mpd)
-# 4. wildmidi
-# 5. timidity++
-
+#
+# Script name: dm-music
+# Description: Play music using dmenu, mpd and mpc.
+# Dependencies: dmenu, mpd, mpc, wildmidi, timidity++
+# GitLab: https://www.gitlab.com/dwt1/dmscripts
+# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
+# Contributors: Murtaza Udaipurwala
+#               Derek Taylor
+#
+### HELP FOR MPD CONFIG
 # Sample mpd config to be placed in $HOME/.config/mpd/mpd.conf
 # music_directory		"~/music"
 # playlist_directory	"~/.local/share/mpd/playlists" # This directory needs to be created manually
 # auto_update "yes"
 # bind_to_address "127.0.0.1"
 # restore_paused "yes"
-# max_output_buffer_size "16384"
-
+# max_output_buffer_size "16384
+#
 # audio_output {
 # 	type "pulse"
 # 	name "pulse"
 # }
-
+#
 # audio_output {
 #        type	"fifo"
 #        name	"Visualizer feed"
@@ -99,11 +88,12 @@ currentPlaylist(){
 }
 
 noOpt=1
-while getopts "hqp" arg 2>/dev/null; do
+while getopts "hqpt" arg 2>/dev/null; do
     case "${arg}" in
         h) help ;;
         q) queuePlaylist ;;
         p) currentPlaylist ;;
+        t) mpc toggle ;;
         *) printf "invalid option\nType dm-music -h for help\n" ;;
     esac
     noOpt=0

@@ -2,7 +2,7 @@
 #
 # Script name: dm-documents
 # Description: Search for a process to kill.
-# Dependencies: dmenu
+# Dependencies: dmenu, zathura
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Derek Taylor, HostGrady
