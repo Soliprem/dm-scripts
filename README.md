@@ -1,6 +1,16 @@
 
 ![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x630.png "dmscripts")
 
+# Table of Contents
+1. [Dmenu Scripts](#dmscripts)
+2. [Important](#important)
+3. [Contributing](#contributing)	
+4. [Issues](#issues)	
+5. [Dependencies](#dependencies)
+6. [Installation](#installation)
+7. [Configuration](#configuration)
+	
+
 # Dmenu Scripts (dmscripts)
 
 The scripts included in this repo are:
@@ -37,14 +47,6 @@ The scripts included in this repo are:
 
 ![Screenshot of dmenu](https://gitlab.com/dwt1/dotfiles/raw/master/.screenshots/dmenu-distrotube01.png)
 
-# Table of Contents
-
-1. [Contributing](#contributing)	
-2. [Issues](#issues)	
-3. [Dependencies](#dependencies)
-4. [Installation](#installation)
-5. [Configuration](#configuration)
-	
 # IMPORTANT!
 
 When we write scripts, we test with a default dmenu configuration (or DT's config). This means 
