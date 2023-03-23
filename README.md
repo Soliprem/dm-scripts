@@ -1,5 +1,5 @@
 
-![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x1080.png "dmscripts")
+![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x630.png "dmscripts")
 
 # Dmenu Scripts (dmscripts)
 
