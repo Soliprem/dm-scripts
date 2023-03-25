@@ -17,6 +17,17 @@
 #
 # If there is already a running instance, user will be prompted to end it.
 
+set -euo pipefail
+
+_path=$(dirname "$(realpath "$0")")
+[[ ! -f "${_path}/_dm-helper.sh" ]] && echo "No helper-script found"
+# shellcheck disable=SC1090,SC1091
+source "${_path}/_dm-helper.sh"
+# shellcheck disable=SC1090
+source "$(get_config)"
+
+check_updated_config
+
 killrecording() {
 	recpid="$(cat /tmp/recordingpid)"
 	# kill with SIGTERM, allowing finishing touches.
@@ -80,8 +91,9 @@ audio() { \
 # the dmenu portions of this script are broken
 # TODO: deprecate or rewrite
 
-askrecording() { \
-	choice=$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${DMENU} "Select recording style:")
+askrecording() {
+	choice="$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${DMENU} "Select recording style:")"
+	
 	case "$choice" in
 		screencast) screencast;;
 		audio) audio;;
@@ -113,12 +125,17 @@ videoselected()
 	echo $! > /tmp/recordingpid
 }
 
-case "$1" in
-	screencast) screencast;;
-	audio) audio;;
-	video) video;;
-	*selected) videoselected;;
-	kill) killrecording;;
-	*) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording;;
-esac
+main() {
+	arg="${1:-none}"
+	case "$arg" in
+		screencast) screencast;;
+		audio) audio;;
+		video) video;;
+		*selected) videoselected;;
+		kill) killrecording;;
+		*) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording;;
+	esac
+}
 
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
