@@ -244,11 +244,17 @@ lingva_instance="https://lingva.ml"
 # lang_map[Automatic]=auto
 
 # dm-weather config
-declare -A weather_location
-# weather_location[New York]="New+York"
-# weather_opts="m" # Always use metric units (celsius)
-# weather_opts="u" # Always use US units (fahrenheit)
-# see: https://github.com/chubin/wttr.in
+
+weather_locations=""
+
+# Example: set the default search parameters to Texas, Paris and Kyiv
+# weather_locations="Texas, United States
+# Paris, France
+# Kyiv, Ukraine"
+#
+# use the weather_opts variable to set additional flags:
+# weather_opts="flag1&flag2&flag3=somevalue"
+# for full details see: https://github.com/chubin/wttr.in
 
 # dm-currencies config
 
