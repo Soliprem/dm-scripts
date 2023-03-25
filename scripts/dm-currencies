@@ -26,36 +26,18 @@ fi
 source "$(get_config)"
 
 main() {
-  # If $currency_method is not set to manual, get currencies dynamically
-  if [[ "${currency_method:-auto}" != "manual" ]]; then
-    mapfile -t data < <(curl -Ss rate.sx/:currencies)
-    data+=("USD United States dollar")
-    for ((i=0; i < ${#data[@]}; ++i)); do
-      currencies[$(echo "${data[$i]}" | awk '{print substr($0, index($0, $2))}')]="$(echo "${data[$i]}" | cut -d' ' -f1)"
-      done
-    unset data
-  fi
 
-  # If $currency_names is not codes use currency names, else use currency codes
-  if [[ "${currency_names:-names}" != "codes" ]]; then
-    from_name=$(printf '%s\n' "${!currencies[@]}" | sort | ${DMENU} 'Convert from:') "$@" || exit 1
-    to_name=$(printf '%s\n' "${!currencies[@]}" | sort | ${DMENU} 'Convert to:') "$@" || exit 1
-    from_code=${currencies[$from_name]}
-    to_code=${currencies[$to_name]}
-  else
-    from_name=$(printf '%s\n' "${currencies[@]}" | sort | ${DMENU} 'Convert from:') "$@" || exit 1
-    to_name=$(printf '%s\n' "${currencies[@]}" | sort | ${DMENU} 'Convert to:') "$@" || exit 1
-    from_code=${from_name}
-    to_code=${to_name}
-  fi
+  from_unedited="$(printf "%s\n" "$currency_list" | ${DMENU} "Convert from:")"
+  to_unedited="$(printf "%s\n" "$currency_list" | ${DMENU} "Convert to:")"
+  amount="$(echo "" | ${DMENU} "How much (number only):")"
 
-  # Get amount and convert it
-  amount=$(echo "" | ${DMENU} "Amount (${from_code} -> ${to_code}):")
-  converted=$(curl -Ss "https://${to_code}.rate.sx/${amount}${from_code}")
+  from="$(echo $from_unedited | cut -d: -f1)"
+  to="$(echo $to_unedited     | cut -d: -f1)"
 
-  # Copy amount to clipboard and send notification
+  converted="$(curl "https://currencyconvert.online/$from/$to/$amount" | grep "How much is <b>" | sed "s/Look at.*//g" | sed "s/.*— //g")"
+
+  notify-send "Converted amount (in clipboard)" "$converted"
   echo "$converted" | cp2cb
-  notify-send "Converted amount (in clipboard)" "$converted $to_code"
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
