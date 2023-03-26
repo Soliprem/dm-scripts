@@ -245,15 +245,15 @@ lingva_instance="https://lingva.ml"
 
 # dm-weather config
 
-weather_locations=""
-
 # Example: set the default search parameters to Texas, Paris and Kyiv
 # weather_locations="Texas, United States
 # Paris, France
 # Kyiv, Ukraine"
-#
+weather_locations=""
+
 # use the weather_opts variable to set additional flags:
 # weather_opts="flag1&flag2&flag3=somevalue"
+
 # for full details see: https://github.com/chubin/wttr.in
 
 # dm-currencies config
@@ -294,5 +294,5 @@ twd:New Taiwan dollar
 usd:United States Dollar
 zar:South African rand"
 
-
-_revision=22
+# current revision (do not touch unless you know what you're doing)
+_revision=23
