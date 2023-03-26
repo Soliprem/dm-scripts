@@ -26,13 +26,13 @@ fi
 source "$(get_config)"
 
 main() {
-
+  # shellcheck disable=SC2154
   from_unedited="$(printf "%s\n" "$currency_list" | ${DMENU} "Convert from:")"
   to_unedited="$(printf "%s\n" "$currency_list" | ${DMENU} "Convert to:")"
   amount="$(echo "" | ${DMENU} "How much (number only):")"
 
-  from="$(echo $from_unedited | cut -d: -f1)"
-  to="$(echo $to_unedited     | cut -d: -f1)"
+  from="$(echo "$from_unedited" | cut -d: -f1)"
+  to="$(echo "$to_unedited"     | cut -d: -f1)"
 
   converted="$(curl "https://currencyconvert.online/$from/$to/$amount" | grep "How much is <b>" | sed "s/Look at.*//g" | sed "s/.*— //g")"
 
