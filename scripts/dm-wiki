@@ -5,7 +5,8 @@
 # Dependencies: dmenu, arch-wiki-docs
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
-# Contributors: Derek Taylor, marvhus
+# Contributors: Derek Taylor
+#               marvhus
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -24,6 +25,9 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 wikidir="/usr/share/doc/arch-wiki/html/"
 lang=""
 
@@ -32,7 +36,7 @@ languages() {
     choice=$(printf '%s\n' "${langs[@]}" | \
         sed 's/.*\///' | \
         sort -g | \
-        ${DMENU} 'Language: ' "$@") || exit 1
+        ${MENU} 'Language: ' "$@") || exit 1
 
     if [ "$choice" ]; then
         lang=$(printf '%s\n' "${choice}/")
@@ -48,7 +52,7 @@ wikipages() {
            cut -d '/' -f8- | \
            sed -e 's/_/ /g' -e 's/.html//g' | \
            sort -g | \
-           ${DMENU} 'Arch Wiki Docs: ' "$@") || exit 1
+           ${MENU} 'Arch Wiki Docs: ' "$@") || exit 1
 
     if [ "$choice" ]; then
         article=$(printf '%s\n' "${wikidir}${lang}${choice}.html" | sed 's/ /_/g')
@@ -58,4 +62,26 @@ wikipages() {
     fi
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && languages "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && languages ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && languages ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && languages ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && languages "$@"

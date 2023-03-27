@@ -156,3 +156,23 @@ parse_rss() {
         esac
   done
 }
+
+#################
+# Help Function #
+#################
+
+# Every script has a '-h' option that displays the following information.
+help(){
+    printf '%s' "Usage: $(basename "$0") [options]
+$(grep '^# Description: ' "$0"  | sed 's/# Description: /Description: /g')
+$(grep '^# Dependencies: ' "$0"  | sed 's/# Dependencies: /Dependencies: /g')
+
+The folowing OPTIONS are accepted:
+    -h  displays this help page
+    -d  runs the script using 'dmenu'
+    -f  runs the script using 'fzf'
+    -r  runs the script using 'rofi'
+
+Running" " $(basename "$0") " "without any argument defaults to using 'dmenu'
+Run 'man dmscripts' for more information"
+}

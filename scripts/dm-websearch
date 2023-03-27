@@ -2,7 +2,7 @@
 #
 # Script name: dm-websearch
 # Description: Search various search engines (inspired by surfraw).
-# Dependencies: dmenu and brave
+# Dependencies: dmenu, fzf, rofi, brave (change DMMBROWSER in dmscripts config if using another browser)
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Derek Taylor
@@ -28,17 +28,19 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
 
 main() {
   # As this is loaded from other file it is technically not defined
   # shellcheck disable=SC2154 # Choosing  a search engine by name from array above.
-  engine=$(printf '%s\n' "${!websearch[@]}" | sort | ${DMENU} 'Choose search engine:' "$@") || exit 1
+  engine=$(printf '%s\n' "${!websearch[@]}" | sort | ${MENU} 'Choose search engine:' "$@") || exit 1
 
   # Getting the URL of the search engine we chose.
   url="${websearch["${engine}"]}"
 
   # Searching the chosen engine.
-  query=$(echo "$engine" | ${DMENU} 'Enter search query:')
+  query=$(printf '%s' "$engine" | ${MENU} 'Enter search query:')
 
   query="$(echo -n "${query}" | jq -s -R -r @uri)"
   # Display search results in web browser
@@ -46,4 +48,26 @@ main() {
   ${DMBROWSER} "${url}${query}"
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

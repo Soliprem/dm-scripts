@@ -2,10 +2,11 @@
 #
 # Script name: dm-note
 # Description: Store multiple one-line texts or codes and copy one of them when needed.
-# Dependencies: dmenu, xclip
+# Dependencies: dmenu, fzf, rofi, xclip
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Fawzakin
+#               Derek Taylor
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -25,26 +26,29 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 main() {
   # Picking our options.
-  choice=$(printf 'Copy note\nNew note\nDelete note\nQuit' | ${DMENU} 'Notes:' "$@")
+  choice=$(printf 'Copy note\nNew note\nDelete note\nQuit' | ${MENU} 'Notes:' "$@")
 
   # Choose what we should do with our choice.
   case "$choice" in
     'Copy note')
       # shellcheck disable=SC2154
-      note_pick=$(${DMENU} 'Copy:' "$@" < "${note_dir}")
+      note_pick=$(${MENU} 'Copy:' "$@" < "${note_dir}")
       [ -n "${note_pick}" ] && echo "${note_pick}" | cp2cb && notify-send -u normal "Note copied" "${note_pick}"
       ;;
     'New note')
-      note_new=$(echo "" | ${DMENU} 'Enter new note:' "$@")
+      note_new=$(echo "" | ${MENU} 'Enter new note:' "$@")
       # Making sure the input is not empty and not already exist in note_dir.
       # The sed command should prevent grep from taking certain characters as a regex input.
       [ -n "$note_new" ] && ! grep -q "^$(echo "${note_new}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${note_dir}" &&
       echo "${note_new}" >> "${note_dir}" && notify-send -u normal "Note created" "${note_new}"
       ;;
     'Delete note')
-      note_del=$(${DMENU} 'Delete:' "$@" < "${note_dir}")
+      note_del=$(${MENU} 'Delete:' "$@" < "${note_dir}")
       # grep should always returns 0 regardless what happens.
       grep -v "^$(echo "${note_del}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${note_dir}" > "/tmp/dmnote" || true
       [ -n "${note_del}" ] && cp -f "/tmp/dmnote" "${note_dir}" && notify-send -u normal "Note deleted" "${note_del}"
@@ -58,4 +62,26 @@ main() {
   esac
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

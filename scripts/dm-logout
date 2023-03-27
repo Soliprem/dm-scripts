@@ -2,7 +2,7 @@
 #
 # Script name: dm-logout
 # Description: Logout, shutdown, reboot or lock screen.
-# Dependencies: dmenu, systemd, slock, notify-send
+# Dependencies: dmenu, fzf, rofi, systemd, slock, notify-send
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Derek Taylor, 
@@ -25,6 +25,9 @@ fi
 # script will not hit this if there is no config-file to load
 # shellcheck disable=SC1090
 source "$(get_config)"
+
+# Check if config has updates that should be displayed to the user
+check_updated_config
 
 # use notify-send if run in dumb term
 # TODO: add abillity to control from config.
@@ -57,14 +60,14 @@ main() {
     # Original code, used as a refrence and as backup
     # done < <(grep 'Name=' /usr/share/xsessions/*.desktop | cut -d'=' -f2)
 
-    # Piping the above array into dmenu.
+    # Piping the above array into dmenu, fzf or rofi.
     # We use "printf '%s\n'" to format the array one item to a line.
-    choice=$(printf '%s\n' "${options[@]}" | ${DMENU} 'Shutdown menu:' "${@}")
+    choice=$(printf '%s\n' "${options[@]}" | ${MENU} 'Shutdown menu:' "${@}")
 
     # What to do when/if we choose one of the options.
     case $choice in
         'Logout')
-            if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
+            if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?" "${@}" )" == "Yes" ]]; then
                 for manager in "${MANAGERS[@]}"; do 
                     killall "${manager}" || output "Process ${manager} was not running."
                 done
@@ -77,21 +80,21 @@ main() {
             ${logout_locker}
             ;;
         'Reboot')
-            if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
+            if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?" "${@}" )" == "Yes" ]]; then
                 systemctl reboot
             else
                 output "User chose not to reboot." && exit 0
             fi
             ;;
         'Shutdown')
-            if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
+            if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?" "${@}" )" == "Yes" ]]; then
                 systemctl poweroff
             else
                 output "User chose not to shutdown." && exit 0
             fi
             ;;
         'Suspend')
-            if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
+            if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?" "${@}" )" == "Yes" ]]; then
                 systemctl suspend
             else
                 output "User chose not to suspend." && exit 0
@@ -109,4 +112,26 @@ main() {
 
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

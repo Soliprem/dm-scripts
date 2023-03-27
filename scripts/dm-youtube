@@ -6,8 +6,11 @@
 # Gitlab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: HostGrady
+#               Derek Taylor
 
-# pipefail setup
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
@@ -23,6 +26,9 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 main() {
   local _feed_url _channel _video
   local _channel_id _video_id _video_list
@@ -30,7 +36,7 @@ main() {
   # Sorts the array and lets you select a channel with dmenu
   # As this is loaded from other file it is technically not defined
   # shellcheck disable=SC2154
-  _channel=$(printf '%s\n' "${!youtube_channels[@]}" | sort | ${DMENU} 'Select Channel:' "$@")
+  _channel=$(printf '%s\n' "${!youtube_channels[@]}" | sort | ${MENU} 'Select Channel:' "$@")
 
   # The way it's done here is most effective, it searchs for "=" then it takes
   # everything before the = sign and leaves us with our variable used in the
@@ -40,7 +46,7 @@ main() {
   # parse rss
   _video_list=$(parse_rss "$(curl -s "${_feed_url}")" )
 
-  _video=$(printf '%s\n' "${_video_list}" | sort -r | ${DMENU} 'Select Video' "$@")
+  _video=$(printf '%s\n' "${_video_list}" | sort -r | ${MENU} 'Select Video' "$@")
   _video_id=$(echo "${_video}" | cut -d'|' -f2 | sed -e 's/^[ \t]*//')
 
   if [[ -n ${_video_id} ]]; then
@@ -50,4 +56,26 @@ main() {
   fi
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

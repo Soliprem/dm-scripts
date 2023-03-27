@@ -1,11 +1,12 @@
 #!/bin/bash
 #
 # Script name: dm-documents
-# Description: Search for a process to kill.
-# Dependencies: dmenu, zathura
+# Description: Search for PDFs to open.
+# Dependencies: dmenu, fzf, rofi, zathura
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
-# Contributors: Derek Taylor, HostGrady
+# Contributors: Derek Taylor
+#               HostGrady
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -25,6 +26,9 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 main(){
   # PDF_VIEWER=zathura
   files="$(find "$HOME" -maxdepth 4 -iname "*.pdf")"
@@ -36,7 +40,7 @@ main(){
         -e 's/Images/Img/g' \
         -e 's/.pdf//g' | \
         sort -g | \
-      ${DMENU} "File: " "$@") || exit 1
+      ${MENU} "File: " "$@") || exit 1
   if [ "$choice" ]; then
       file=$( printf '%s' "$choice" | \
         sed -e 's/Dcs/Documents/g' \
@@ -50,4 +54,26 @@ main(){
   fi
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

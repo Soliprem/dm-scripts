@@ -7,18 +7,20 @@
 
 # Defined variables, modify anything in quotes to your prefered software
 
-# -p is needed as we use prompts, alternative programs have to handle prompts well.
-
+# IMPORTANT! Keep the '-p' flag at the end of the DMENU and RMENU variables.
+# Also, keep the '--prompt' flag at the end of the FMENU variable.
+# These are needed as we use prompts in the scripts.
 DMENU="dmenu -i -l 20 -p"
-#DMENU="rofi -dmenu"
+FMENU="fzf --border=rounded --margin=5% --color=dark --height 100% --reverse --header=$(basename $0) --info=hidden --header-first --prompt"
+RMENU="rofi -dmenu -p"
 
 PDF_VIEWER="zathura"
 
 DMBROWSER="brave"
 # DMBROWSER="qutebrowser"
 
-DMTERM="st -e"
-# DMTERM="alacritty -e"
+# DMTERM="st -e"
+DMTERM="alacritty -e"
 
 DMEDITOR="emacsclient -c -a emacs"
 # DMEDITOR="${DMTERM} vim"
