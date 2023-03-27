@@ -43,8 +43,8 @@ function maindmenu() {
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${DMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
-        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -d" | awk -F / '{print $NF}')"
-        bash $thecommand "$@"
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
+        bash $thecommand -d "$@"
     else
         echo "Program terminated." && exit 0
     fi
@@ -67,8 +67,8 @@ function mainfzf() {
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
-        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -f" | awk -F / '{print $NF}')"
-        bash $thecommand "$@"
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
+        bash $thecommand -f "$@"
     else
         echo "Program terminated." && exit 0
     fi
@@ -91,8 +91,8 @@ function mainrofi() {
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${RMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
-        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -r" | awk -F / '{print $NF}')"
-        bash $thecommand "$@"
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
+        bash $thecommand -r "$@"
     else
         echo "Program terminated." && exit 0
     fi
