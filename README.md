@@ -20,7 +20,6 @@ The scripts included in this repo are:
 + dm-bookman - Search your qutebrowser bookmarks, quickmarks and history urls.
 + dm-colpick - Copy a color's hex value to your clipboard
 + dm-confedit - Choose from a list of configuration files to edit.
-+ dm-currencies - Convert prices between currencies.
 + dm-dictionary - Simple dictionary script
 + dm-documents - Searches for pdf files and opens them with the pdf viewer
 + dm-hub - A hub from where you can run all the scripts from.
@@ -38,7 +37,6 @@ The scripts included in this repo are:
 + dm-setbg - A wallpaper setting utility using dmenu, xwallpaper and sxiv
 + dm-sounds - Choose an ambient background to play.
 + dm-spellcheck - Script to check spellings
-+ dm-translate - Translate using Google Translate (through Lingva Translate)
 + dm-usbmount - mount/unmount usb drives using dmenu. No fancy daemon required
 + dm-weather - Simple graphical weather app
 + dm-websearch - Search various search engines (inspired by surfraw).
