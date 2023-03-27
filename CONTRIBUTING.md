@@ -46,7 +46,6 @@ Please use the following boiler code to start writing from:
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
-
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
@@ -62,12 +61,39 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 main() {
-  # Your code here
+  # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
 ```
+
+It is important to follow the style of the template above.  Especially important is including in the comments the lines that begin with "# Description:" and "# Dependencies" since these are used to display help information when the script is run with the '-h' option.
 
 In the testing phase of the script writing process, run the command ```shellcheck -x your-script``` and attempt to fix any errors that come up. 
 
@@ -78,7 +104,7 @@ Occasionally however, we want the shell script to behave in a way that shellchec
 # your code here
 ```
 
-In the output you should recieve an error code which matches the SCxxxx format. The x's would be numbers.
+In the output you should receive an error code which matches the SCxxxx format. The x's would be numbers.
 
 In the script writing process we expect consistent indentation. Preferably, use TWO spaces instead of tabs.
 
@@ -96,9 +122,9 @@ $ git commit -am "your message here"
 
 Patches should ideally try to focus on one goal if possible. This is to avoid conflicts.
 
-After commiting push and then make a merge request explaining why your patch should be merged into upsteam. 
+After committing push and then make a merge request explaining why your patch should be merged into upsteam. 
 
-(Notes: advanced use cases may require seperate flags)
+(Notes: advanced use cases may require separate flags)
 
 ```bash
 $ git push 

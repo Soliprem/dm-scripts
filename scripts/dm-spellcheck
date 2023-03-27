@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Script name: dm-dictionary
-# Description: uses the translate package as a dictionary
+# Description: Uses didyoumean as a spellchecker.
 # Dependencies: dmenu, fzf, rofi, didyoumean
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE

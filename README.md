@@ -11,7 +11,9 @@
 7. [Configuration](#configuration)
 	
 
-# Dmenu Scripts (dmscripts)
+# dmscripts
+
+dmscripts originally began life as a collection of scripts designed to use dmenu, but not everyone wants to use dmenu as a launcher/menu.  So, dmscripts now works with rofi and fzf as well as dmenu.  For most scripts, simply pass the '-d', '-f' or '-r' options to select whether the script uses dmenu, fzf or rofi.  If no option is given to the script, it will default to using dmenu.
 
 The scripts included in this repo are:
 
@@ -173,7 +175,7 @@ Being a free/libre software project, you may make modifications to the source co
 
 ### Changing the Config Location
 
-If you could like to change config location you can add custom search path into the array in function `get_config` in `_dm-helper.sh`
+If you would like to change the config location, you can add a custom search path into the array in function `get_config` in `_dm-helper.sh`
 
 ```bash
 config_dirs+=(
