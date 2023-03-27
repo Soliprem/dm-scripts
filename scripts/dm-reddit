@@ -61,7 +61,7 @@ while getopts "dfrh" arg 2>/dev/null; do
            [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
         r) # shellcheck disable=SC2153
            MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@";;
         h) help ;;
         *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac

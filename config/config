@@ -11,7 +11,7 @@
 # Also, keep the '--prompt' flag at the end of the FMENU variable.
 # These are needed as we use prompts in the scripts.
 DMENU="dmenu -i -l 20 -p"
-FMENU="fzf --border=rounded --margin=5% --color=dark --height 100% --reverse --header=$(basename $0) --info=hidden --header-first --prompt"
+FMENU="fzf --border=rounded --margin=5% --color=dark --height 100% --reverse --header=$(basename "$0") --info=hidden --header-first --prompt"
 RMENU="rofi -dmenu -p"
 
 PDF_VIEWER="zathura"

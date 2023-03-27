@@ -44,7 +44,7 @@ function maindmenu() {
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
-        bash $thecommand -d "$@"
+        bash "$thecommand" -d "$@"
     else
         echo "Program terminated." && exit 0
     fi
@@ -64,11 +64,11 @@ function mainfzf() {
         _scripts[${script_name}]="${script}"
     done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
-    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:' "$@")
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:')
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
-        bash $thecommand -f "$@"
+        bash "$thecommand" -f
     else
         echo "Program terminated." && exit 0
     fi
@@ -92,7 +92,7 @@ function mainrofi() {
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
-        bash $thecommand -r "$@"
+        bash "$thecommand" -r "$@"
     else
         echo "Program terminated." && exit 0
     fi
@@ -104,12 +104,9 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu ;;
-        f) # shellcheck disable=SC2153
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
-        r) # shellcheck disable=SC2153
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainrofi ;;
+        d) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu;;
+        f) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf;;
+        r) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainrofi "$@";;
         h) help ;;
         *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
