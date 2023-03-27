@@ -43,8 +43,10 @@ setbg() {
 main() {
   choice="$(printf "Set\nRandom\nExit" | ${MENU} "What would you like to do?")"
   case "$choice" in
-    "Set") 
+    "Set")
+      # shellcheck disable=SC2154
     if [ "$use_imv" = 0 ]; then
+      # shellcheck disable=SC2154
       wallpaper="$(sxiv -t -o "${setbg_dir}")"
       echo "$wallpaper" > "$HOME"/.cache/wall
       setbg "$wallpaper"
