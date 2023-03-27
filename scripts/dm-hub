@@ -26,7 +26,7 @@ source "$(get_config)"
 # Check if config has updates that should be displayed to the user
 check_updated_config
 
-function main() {
+function maindmenu() {
     local _self
     declare -A _scripts
 
@@ -40,10 +40,59 @@ function main() {
         _scripts[${script_name}]="${script}"
     done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
-    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${MENU} 'Run Script:' "$@")
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${DMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
-        bash "$(printf '%s\n' "${_scripts["${choice}"]}" | awk '{print $1}')" "$@"
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -d" | awk -F / '{print $NF}')"
+        bash $thecommand "$@"
+    else
+        echo "Program terminated." && exit 0
+    fi
+}
+
+function mainfzf() {
+    local _self
+    declare -A _scripts
+
+    _self=$(basename "$0")
+
+    while IFS= read -r -d '' script; do
+        # Every 'dmscript' should contain a line that begins with "# Description: ".
+        # Let's take that description and add it next to the script name in the dmenu.
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
+        [[ "${script_name}" == "${_self}" ]] && continue
+        _scripts[${script_name}]="${script}"
+    done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
+
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:' "$@")
+
+    if [ "${choice}" ]; then
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -f" | awk -F / '{print $NF}')"
+        bash $thecommand "$@"
+    else
+        echo "Program terminated." && exit 0
+    fi
+}
+
+function mainrofi() {
+    local _self
+    declare -A _scripts
+
+    _self=$(basename "$0")
+
+    while IFS= read -r -d '' script; do
+        # Every 'dmscript' should contain a line that begins with "# Description: ".
+        # Let's take that description and add it next to the script name in the dmenu.
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
+        [[ "${script_name}" == "${_self}" ]] && continue
+        _scripts[${script_name}]="${script}"
+    done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
+
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${RMENU} 'Run Script:' "$@")
+
+    if [ "${choice}" ]; then
+        thecommand="$(printf '%s' "${_scripts["${choice}"]}" " -r" | awk -F / '{print $NF}')"
+        bash $thecommand "$@"
     else
         echo "Program terminated." && exit 0
     fi
@@ -56,14 +105,11 @@ noOpt=1
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
         d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu ;;
         f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
         r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainrofi ;;
         h) help ;;
         *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
@@ -71,4 +117,4 @@ while getopts "dfrh" arg 2>/dev/null; do
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+[ $noOpt = 1 ] && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu "$@"

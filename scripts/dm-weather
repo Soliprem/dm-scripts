@@ -6,6 +6,7 @@
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: HostGrady
+#               Derek Taylor
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -25,11 +26,14 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Check if config has updates that should be displayed to the user
+check_updated_config
+
 main() {
   # Here we obtain the location from the list in the config
   # As this is loaded from other file it is technically not defined
   # shellcheck disable=SC2154
-  _location="$(printf '%s\n' "${weather_locations}" | ${DMENU} "Where do you want to see the weather?")"
+  _location="$(printf '%s\n' "${weather_locations}" | ${MENU} "Where do you want to see the weather?")"
 
   # If $weather_opts is unset, give it an empty value
   weather_opts+=''
@@ -38,4 +42,26 @@ main() {
   curl -s "https://wttr.in/${_location// /%20}?T&${weather_opts}" | yad --text-info --maximized
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+noOpt=1
+# If script is run with '-d', it will use 'dmenu'
+# If script is run with '-f', it will use 'fzf'
+# If script is run with '-d', it will use 'rofi'
+while getopts "dfrh" arg 2>/dev/null; do
+    case "${arg}" in
+        d) # shellcheck disable=SC2153
+           MENU=${DMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        f) # shellcheck disable=SC2153
+           MENU=${FMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        r) # shellcheck disable=SC2153
+           MENU=${RMENU}
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+        h) help ;;
+        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    esac
+    noOpt=0
+done
+
+# If script is run with NO argument, it will use 'dmenu'
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
