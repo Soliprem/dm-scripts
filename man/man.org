@@ -58,6 +58,8 @@ Using dmenu, setup a wallpaper.
 Choose an ambient background sound to play.
 ** dm-spellcheck
 Uses the didyoumean package as a spellchecker.
+** dm-template
+Tool used to generate scripts to be intigrated into dmscripts.
 ** dm-usbmount
 USB mounting done suckless, no need for bloated daemons.
 ** dm-websearch
