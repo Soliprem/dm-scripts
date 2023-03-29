@@ -31,7 +31,6 @@ source "$(get_config)"
 check_updated_config
 
 main() {
-
 # dmenu expects some sort of input piped into it.
 # The echo to /dev/null is just a hacky way of giving
 # dmenu some input without really giving any input.
@@ -52,7 +51,28 @@ if ! [ "${KEYWORD}" ]; then
 	printf 'No word inserted\n' >&2
 	exit 0
 fi
-$DMTERM trans -v -d "$WORD"
+$DMTERM trans -v -d "$KEYWORD"
+}
+
+mainfzf() {
+# shellcheck disable=SC2260
+WORD="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to lookup:")"
+TESTWORD="$(dym -c -n=1 "$WORD")"
+
+if [ "$WORD" != "$TESTWORD" ]; then
+	KEYWORD=$(dym -c "$WORD" | ${FMENU} "was $WORD a misspelling?(select/no)")
+	if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
+		KEYWORD="$WORD"
+	fi
+else
+	KEYWORD="$WORD"
+fi
+
+if ! [ "${KEYWORD}" ]; then
+	printf 'No word inserted\n' >&2
+	exit 0
+fi
+$DMTERM trans -v -d "$KEYWORD"
 }
 
 noOpt=1
@@ -65,8 +85,7 @@ while getopts "dfrh" arg 2>/dev/null; do
            MENU=${DMENU}
            [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
         f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
+           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
         r) # shellcheck disable=SC2153
            MENU=${RMENU}
            [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@";;
