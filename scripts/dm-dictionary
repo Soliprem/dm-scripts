@@ -60,6 +60,7 @@ WORD="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to looku
 TESTWORD="$(dym -c -n=1 "$WORD")"
 
 if [ "$WORD" != "$TESTWORD" ]; then
+	# shellcheck disable=SC2153
 	KEYWORD=$(dym -c "$WORD" | ${FMENU} "was $WORD a misspelling?(select/no)")
 	if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
 		KEYWORD="$WORD"
