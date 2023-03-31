@@ -186,7 +186,9 @@ youtube_channels[distrotube]="https://www.youtube.com/c/DistroTube/featured"
 # dm-radio config
 # Your list of online radio stations for the dm-radio script.
 # Syntax: radio_stations[name]="https://www.zeno.fm/radio/your-station"
+# dmradio-volume ranges between -1 and 100 (for mplayer) or 0-100 (for mpv)
 
+DMRADIOVOLUME="50"
 declare -A radio_stations
 radio_stations[Oldies Radio 50s-60s]="https://zeno.fm/radio/oldies-radio-50s-60s/"
 radio_stations[Oldies Radio 70s]="https://zeno.fm/radio/oldies-radio-70s/"
