@@ -59,7 +59,7 @@ main() {
     done < <(grep-desktop)
     # Original code, used as a refrence and as backup
     # done < <(grep 'Name=' /usr/share/xsessions/*.desktop | cut -d'=' -f2)
-
+    MANAGERS+=("xmonad-x86_64-linux")
     # Piping the above array into dmenu, fzf or rofi.
     # We use "printf '%s\n'" to format the array one item to a line.
     choice=$(printf '%s\n' "${options[@]}" | ${MENU} 'Shutdown menu:' "${@}")
