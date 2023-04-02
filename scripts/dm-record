@@ -36,112 +36,113 @@ source "$(get_config)"
 check_updated_config
 
 killrecording() {
-	recpid="$(cat /tmp/recordingpid)"
-	# kill with SIGTERM, allowing finishing touches.
-	kill -15 "$recpid"
-	rm -f /tmp/recordingpid
-	pkill -RTMIN+9 "${STATUSBAR:-dwmblocks}"
-	# even after SIGTERM, ffmpeg may still run, so SIGKILL it.
-	sleep 3
-	kill -9 "$recpid"
-	exit
-	}
+    recpid="$(cat /tmp/recordingpid)"
+    # kill with SIGTERM, allowing finishing touches.
+    kill -15 "$recpid"
+    rm -f /tmp/recordingpid
+    pkill -RTMIN+9 "${STATUSBAR:-dwmblocks}"
+    # even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+    sleep 3
+    kill -9 "$recpid"
+    exit
+}
 
 # -s "$(xdpyinfo | grep dimensions | awk '{print $2;}')" \
-screencast() { \
-	ffmpeg -y \
-	-f x11grab \
-	-framerate 60 \
-	-s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
-	-i "$DISPLAY" \
-	-f pulse -i default \
-	-r 30 \
- 	-c:v h264 -crf 0 -preset ultrafast -c:a aac \
-	"$HOME/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
-	echo $! > /tmp/recordingpid
-       	}
+screencast() {
+    ffmpeg -y \
+        -f x11grab \
+        -framerate 60 \
+        -s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
+        -i "$DISPLAY" \
+        -f pulse -i default \
+        -r 30 \
+        -c:v h264 -crf 0 -preset ultrafast -c:a aac \
+        "$HOME/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
+    echo $! >/tmp/recordingpid
+}
 
-video() { ffmpeg \
-	-f x11grab \
-	-s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
-	-i "$DISPLAY" \
- 	-c:v libx264 -qp 0 -r 30 \
-	"$HOME/video-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
-	}
+video() {
+    ffmpeg \
+        -f x11grab \
+        -s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
+        -i "$DISPLAY" \
+        -c:v libx264 -qp 0 -r 30 \
+        "$HOME/video-$(date '+%y%m%d-%H%M-%S').mkv" &
+    echo $! >/tmp/recordingpid
+}
 
-webcamhidef() { ffmpeg \
-	-f v4l2 \
-	-i /dev/video0 \
-	-video_size 1920x1080 \
-	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
-	}
+webcamhidef() {
+    ffmpeg \
+        -f v4l2 \
+        -i /dev/video0 \
+        -video_size 1920x1080 \
+        "$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+    echo $! >/tmp/recordingpid
+}
 
-webcam() { ffmpeg \
-	-f v4l2 \
-	-i /dev/video0 \
-	-video_size 640x480 \
-	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
-	}
+webcam() {
+    ffmpeg \
+        -f v4l2 \
+        -i /dev/video0 \
+        -video_size 640x480 \
+        "$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+    echo $! >/tmp/recordingpid
+}
 
-
-audio() { \
-	ffmpeg \
-	-f alsa -i default \
-	-c:a flac \
-	"$HOME/audio-$(date '+%y%m%d-%H%M-%S').flac" &
-	echo $! > /tmp/recordingpid
-	}
+audio() {
+    ffmpeg \
+        -f alsa -i default \
+        -c:a flac \
+        "$HOME/audio-$(date '+%y%m%d-%H%M-%S').flac" &
+    echo $! >/tmp/recordingpid
+}
 
 # the dmenu portions of this script are broken
 # TODO: deprecate or rewrite
 
 askrecording() {
-	choice="$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${MENU} "Select recording style:")"
-	
-	case "$choice" in
-		screencast) screencast;;
-		audio) audio;;
-		video) video;;
-		*selected) videoselected;;
-		webcam) webcam;;
-		"webcam (hi-def)") webcamhidef;;
-	esac
-	}
+    choice="$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${MENU} "Select recording style:")"
 
-asktoend() { \
-	response=$(printf "No\\nYes" | ${MENU} "Recording still active. End recording?") &&
-	[ "$response" = "Yes" ] &&  killrecording
-	}
+    case "$choice" in
+    screencast) screencast ;;
+    audio) audio ;;
+    video) video ;;
+    *selected) videoselected ;;
+    webcam) webcam ;;
+    "webcam (hi-def)") webcamhidef ;;
+    esac
+}
 
-videoselected()
-{
-	slop -f "%x %y %w %h" > /tmp/slop
-	read -r X Y W H < /tmp/slop
-	rm /tmp/slop
+asktoend() {
+    response=$(printf "No\\nYes" | ${MENU} "Recording still active. End recording?") \
+        && [ "$response" = "Yes" ] && killrecording
+}
 
-	ffmpeg \
-	-f x11grab \
-	-framerate 60 \
-	-video_size "$W"x"$H" \
-	-i :0.0+"$X,$Y" \
-	-c:v libx264 -qp 0 -r 30 \
-	"$HOME/box-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
+videoselected() {
+    slop -f "%x %y %w %h" >/tmp/slop
+    read -r X Y W H </tmp/slop
+    rm /tmp/slop
+
+    ffmpeg \
+        -f x11grab \
+        -framerate 60 \
+        -video_size "$W"x"$H" \
+        -i :0.0+"$X,$Y" \
+        -c:v libx264 -qp 0 -r 30 \
+        "$HOME/box-$(date '+%y%m%d-%H%M-%S').mkv" &
+    echo $! >/tmp/recordingpid
 }
 
 main() {
-	arg="${1:-none}"
-	case "$arg" in
-		screencast) screencast;;
-		audio) audio;;
-		video) video;;
-		*selected) videoselected;;
-		kill) killrecording;;
-		*) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording;;
-	esac
+    arg="${1:-none}"
+    case "$arg" in
+    screencast) screencast ;;
+    audio) audio ;;
+    video) video ;;
+    *selected) videoselected ;;
+    kill) killrecording ;;
+    *) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording ;;
+    esac
 }
 
 noOpt=1
@@ -150,17 +151,20 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@";;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) # shellcheck disable=SC2153
+        MENU=${DMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    f) # shellcheck disable=SC2153
+        MENU=${FMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    r) # shellcheck disable=SC2153
+        MENU=${RMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@"
+        ;;
+    h) help ;;
+    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done

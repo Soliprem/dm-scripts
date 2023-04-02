@@ -35,12 +35,12 @@
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+    # shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
 else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+    # shellcheck disable=SC1090
+    echo "No helper-script found"
 fi
 
 # script will not hit this if there is no config-file to load
@@ -50,38 +50,38 @@ source "$(get_config)"
 # Check if config has updates that should be displayed to the user
 check_updated_config
 
-play(){
-    mpc crop > /dev/null 2>&1
+play() {
+    mpc crop >/dev/null 2>&1
     music="$(mpc listall | ${MENU} "Music to play")" || exit 1
     mpc -q add "$music"
-    mpc del 0 > /dev/null 2>&1
+    mpc del 0 >/dev/null 2>&1
     mpc play
     mpc repeat on
 }
 
-queuePlaylist(){
+queuePlaylist() {
     playlist="$(mpc lsplaylists | ${MENU} "Your playlists")" || exit 1
     mpc -q clear
     mpc load "$playlist"
     mpc -q play 1
-    echo "$playlist" > "${HOME}/.cache/current_playlist"
+    echo "$playlist" >"${HOME}/.cache/current_playlist"
 }
 
-currentPlaylist(){
+currentPlaylist() {
     playlist="$(cat "${HOME}/.cache/current_playlist")"
     music_list="$(mpc playlist "${playlist}")"
     music="$(echo "${music_list}" | ${MENU} "Music to play")" || exit 1
     mpc -q clear
-    mpc load "${playlist}" > /dev/null 2>&1
+    mpc load "${playlist}" >/dev/null 2>&1
     mpc play "$(echo "${music_list}" | awk -v pattern="$music" '$0 ~ pattern { print NR; exit }')"
 }
 
 # We write a unique help function for dm-music since it has
 # more options than the typical dmscript.
-help(){
+help() {
     printf '%s' "Usage: $(basename "$0") [options]
-$(grep '^# Description: ' "$0"  | sed 's/# Description: /Description: /g')
-$(grep '^# Dependencies: ' "$0"  | sed 's/# Dependencies: /Dependencies: /g')
+$(grep '^# Description: ' "$0" | sed 's/# Description: /Description: /g')
+$(grep '^# Dependencies: ' "$0" | sed 's/# Dependencies: /Dependencies: /g')
 
 The folowing OPTIONS are accepted:
     -h  displays this help page
@@ -109,20 +109,23 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrhqpt" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play ;;
-        f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play ;;
-        r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play ;;
-        q) queuePlaylist ;;
-        p) currentPlaylist ;;
-        t) mpc toggle ;;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) # shellcheck disable=SC2153
+        MENU=${DMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        ;;
+    f) # shellcheck disable=SC2153
+        MENU=${FMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        ;;
+    r) # shellcheck disable=SC2153
+        MENU=${RMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        ;;
+    q) queuePlaylist ;;
+    p) currentPlaylist ;;
+    t) mpc toggle ;;
+    h) help ;;
+    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done

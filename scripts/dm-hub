@@ -35,10 +35,10 @@ function maindmenu() {
     while IFS= read -r -d '' script; do
         # Every 'dmscript' should contain a line that begins with "# Description: ".
         # Let's take that description and add it next to the script name in the dmenu.
-        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}")" | sed 's/# Description: /- /g')
         [[ "${script_name}" == "${_self}" ]] && continue
         _scripts[${script_name}]="${script}"
-    done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
+    done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${DMENU} 'Run Script:' "$@")
 
@@ -59,10 +59,10 @@ function mainfzf() {
     while IFS= read -r -d '' script; do
         # Every 'dmscript' should contain a line that begins with "# Description: ".
         # Let's take that description and add it next to the script name in the dmenu.
-        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}")" | sed 's/# Description: /- /g')
         [[ "${script_name}" == "${_self}" ]] && continue
         _scripts[${script_name}]="${script}"
-    done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
+    done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:')
 
@@ -83,10 +83,10 @@ function mainrofi() {
     while IFS= read -r -d '' script; do
         # Every 'dmscript' should contain a line that begins with "# Description: ".
         # Let's take that description and add it next to the script name in the dmenu.
-        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}" )" | sed 's/# Description: /- /g')
+        script_name=$(echo "$(basename "${script}") $(grep '^# Description: ' "${script}")" | sed 's/# Description: /- /g')
         [[ "${script_name}" == "${_self}" ]] && continue
         _scripts[${script_name}]="${script}"
-    done< <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
+    done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
     choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${RMENU} 'Run Script:' "$@")
 
@@ -104,11 +104,11 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu;;
-        f) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf;;
-        r) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainrofi "$@";;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu ;;
+    f) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
+    r) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainrofi "$@" ;;
+    h) help ;;
+    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done
