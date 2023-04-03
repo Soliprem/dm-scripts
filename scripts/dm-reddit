@@ -15,12 +15,12 @@
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+    # shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
 else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+    # shellcheck disable=SC1090
+    echo "No helper-script found"
 fi
 
 # script will not hit this if there is no config-file to load
@@ -31,20 +31,20 @@ source "$(get_config)"
 check_updated_config
 
 main() {
-  # Picking a subreddit from the above reddit_list.
-  # As this is loaded from other file it is technically not defined
-  # shellcheck disable=SC2154
-  reddit_list+=( "Quit" )
-  _subreddit=$(printf '%s\n' "${reddit_list[@]}" | ${MENU} "Choose a subreddit:" "$@") || exit 1
+    # Picking a subreddit from the above reddit_list.
+    # As this is loaded from other file it is technically not defined
+    # shellcheck disable=SC2154
+    reddit_list+=("Quit")
+    _subreddit=$(printf '%s\n' "${reddit_list[@]}" | ${MENU} "Choose a subreddit:" "$@") || exit 1
 
-  # Show the last 20 posts (titles and ids) from the chosen subreddit.
-  post_title=$(bash reddio print -f '$num. $title $id$nl' -l 20 "$_subreddit" | \
-  ${MENU} 'Last 20 posts on '"$_subreddit" "$@")
+    # Show the last 20 posts (titles and ids) from the chosen subreddit.
+    post_title=$(bash reddio print -f '$num. $title $id$nl' -l 20 "$_subreddit" \
+        | ${MENU} 'Last 20 posts on '"$_subreddit" "$@")
 
-  # Display contents of chosen post in a yad text box.
-  post_id=$(printf '%s\n' "${post_title##* }")
-  bash reddio print -f ' TITLE: $title$nl SUBMITTED: $created_pretty$nl AUTHOR: $author$nl$nl$text' by_id/"$post_id" | \
-  yad --text-info --height=600 --width=600 || exit 1
+    # Display contents of chosen post in a yad text box.
+    post_id=$(printf '%s\n' "${post_title##* }")
+    bash reddio print -f ' TITLE: $title$nl SUBMITTED: $created_pretty$nl AUTHOR: $author$nl$nl$text' by_id/"$post_id" \
+        | yad --text-info --height=600 --width=600 || exit 1
 }
 
 noOpt=1
@@ -53,17 +53,20 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@";;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) # shellcheck disable=SC2153
+        MENU=${DMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    f) # shellcheck disable=SC2153
+        MENU=${FMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    r) # shellcheck disable=SC2153
+        MENU=${RMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@"
+        ;;
+    h) help ;;
+    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done

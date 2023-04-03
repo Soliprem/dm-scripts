@@ -15,12 +15,12 @@
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+    # shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
 else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+    # shellcheck disable=SC1090
+    echo "No helper-script found"
 fi
 
 # script will not hit this if there is no config-file to load
@@ -31,49 +31,49 @@ source "$(get_config)"
 check_updated_config
 
 main() {
-# dmenu expects some sort of input piped into it.
-# The echo to /dev/null is just a hacky way of giving
-# dmenu some input without really giving any input.
-# shellcheck disable=SC2260
-WORD="$(echo "" >/dev/null | ${MENU} "Enter word to lookup:")"
-TESTWORD="$(dym -c -n=1 "$WORD")"
+    # dmenu expects some sort of input piped into it.
+    # The echo to /dev/null is just a hacky way of giving
+    # dmenu some input without really giving any input.
+    # shellcheck disable=SC2260
+    WORD="$(echo "" >/dev/null | ${MENU} "Enter word to lookup:")"
+    TESTWORD="$(dym -c -n=1 "$WORD")"
 
-if [ "$WORD" != "$TESTWORD" ]; then
-	KEYWORD=$(dym -c "$WORD" | ${MENU} "was $WORD a misspelling?(select/no)")
-	if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
-		KEYWORD="$WORD"
-	fi
-else
-	KEYWORD="$WORD"
-fi
+    if [ "$WORD" != "$TESTWORD" ]; then
+        KEYWORD=$(dym -c "$WORD" | ${MENU} "was $WORD a misspelling?(select/no)")
+        if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
+            KEYWORD="$WORD"
+        fi
+    else
+        KEYWORD="$WORD"
+    fi
 
-if ! [ "${KEYWORD}" ]; then
-	printf 'No word inserted\n' >&2
-	exit 0
-fi
-$DMTERM trans -v -d "$KEYWORD"
+    if ! [ "${KEYWORD}" ]; then
+        printf 'No word inserted\n' >&2
+        exit 0
+    fi
+    $DMTERM trans -v -d "$KEYWORD"
 }
 
 mainfzf() {
-# shellcheck disable=SC2260
-WORD="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to lookup:")"
-TESTWORD="$(dym -c -n=1 "$WORD")"
+    # shellcheck disable=SC2260
+    WORD="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to lookup:")"
+    TESTWORD="$(dym -c -n=1 "$WORD")"
 
-if [ "$WORD" != "$TESTWORD" ]; then
-	# shellcheck disable=SC2153
-	KEYWORD=$(dym -c "$WORD" | ${FMENU} "was $WORD a misspelling?(select/no)")
-	if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
-		KEYWORD="$WORD"
-	fi
-else
-	KEYWORD="$WORD"
-fi
+    if [ "$WORD" != "$TESTWORD" ]; then
+        # shellcheck disable=SC2153
+        KEYWORD=$(dym -c "$WORD" | ${FMENU} "was $WORD a misspelling?(select/no)")
+        if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
+            KEYWORD="$WORD"
+        fi
+    else
+        KEYWORD="$WORD"
+    fi
 
-if ! [ "${KEYWORD}" ]; then
-	printf 'No word inserted\n' >&2
-	exit 0
-fi
-$DMTERM trans -v -d "$KEYWORD"
+    if ! [ "${KEYWORD}" ]; then
+        printf 'No word inserted\n' >&2
+        exit 0
+    fi
+    $DMTERM trans -v -d "$KEYWORD"
 }
 
 noOpt=1
@@ -82,16 +82,18 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        f) # shellcheck disable=SC2153
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
-        r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@";;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) # shellcheck disable=SC2153
+        MENU=${DMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    f) # shellcheck disable=SC2153
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && mainfzf ;;
+    r) # shellcheck disable=SC2153
+        MENU=${RMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@"
+        ;;
+    h) help ;;
+    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done

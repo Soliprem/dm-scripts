@@ -19,6 +19,7 @@ You are expected to have these programs installed on the system:
 + bash - We only write bash scripts. No fish, zsh, POSIX sh or any other shells are permissible to use. We use bashisms in the scripts so any attempt to run on a bash-incompatible shell is on you.
 + dmenu - Our scripts are tailored to dmenu users first, if it doesn't work on a default dmenu installation and using the default settings we use in the dmscripts config, it shouldn't be submitted.
 + shellcheck - **WE EXPECT TESTING!** Please do not send us random, buggy and untested code. Shellcheck is a minimal Haskell program to check for errors. ```shellcheck -x your-script```
++ shfmt - our scripts require a consistent formatting structure, use the following command in the scripts directory when contributing to ensure styling remains consistent ```shfmt -bn -l -i=4 -ln=bash -w .```, do not format the config file.
 
 This project also expects a few other things of you:
 
@@ -31,17 +32,17 @@ This project also expects a few other things of you:
 
 All scripts must be named in the format ```dm-[scriptname]```. Avoid naming conflicts if possible.
 
-Please use the following boiler code to start writing from:
+You can generate boilerplate by using ./dm-template or by copying this code into your editor of choice:
 
 ```bash
 #!/usr/bin/env bash
 #
-# Script name: 
-# Description: 
-# Dependencies: 
+# Script name: template
+# Description: A template file for users to use as a basis to modify their scripts.
+# Dependencies: dmenu rofi fzf other-dependencies-here
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
-# Contributors: 
+# Contributors: John Doe
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -49,12 +50,12 @@ Please use the following boiler code to start writing from:
 set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+    # shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
 else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+    # shellcheck disable=SC1090
+    echo "No helper-script found"
 fi
 
 # script will not hit this if there is no config-file to load
@@ -65,7 +66,7 @@ source "$(get_config)"
 check_updated_config
 
 main() {
-  # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
+    # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
 }
 
 noOpt=1
@@ -74,17 +75,21 @@ noOpt=1
 # If script is run with '-d', it will use 'rofi'
 while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
-        d) # shellcheck disable=SC2153
-           MENU=${DMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        f) # shellcheck disable=SC2153
-           MENU=${FMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        r) # shellcheck disable=SC2153
-           MENU=${RMENU}
-           [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main ;;
-        h) help ;;
-        *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
+    d) # shellcheck disable=SC2153
+        MENU=${DMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    f) # shellcheck disable=SC2153
+        MENU=${FMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    r) # shellcheck disable=SC2153
+        MENU=${RMENU}
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+        ;;
+    h) help ;;
+    *) err "invalid option:
+Type $(basename "$0") -h for help" ;;
     esac
     noOpt=0
 done
@@ -106,7 +111,7 @@ Occasionally however, we want the shell script to behave in a way that shellchec
 
 In the output you should receive an error code which matches the SCxxxx format. The x's would be numbers.
 
-In the script writing process we expect consistent indentation. Preferably, use TWO spaces instead of tabs.
+In the script writing process we expect consistent indentation. Run ```shfmt -bn -l -i=4 -ln=bash -w .``` on your code to ensure it matches our style guidelines. You do not have to run the command on the config file as that currently has weird errors.
 
 Finally we expect you to update the existing documentation if you can do that. This includes: README.md, man.org and the code itself. **Scripts are sorted in alphabetical order**
 
