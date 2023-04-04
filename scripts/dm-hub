@@ -40,7 +40,7 @@ function maindmenu() {
         _scripts[${script_name}]="${script}"
     done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
-    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${DMENU} 'Run Script:' "$@")
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | grep ".*dm.*" | ${DMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
@@ -64,7 +64,7 @@ function mainfzf() {
         _scripts[${script_name}]="${script}"
     done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
-    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${FMENU} 'Run Script:')
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | grep ".*dm.*" | ${FMENU} 'Run Script:')
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
@@ -88,7 +88,7 @@ function mainrofi() {
         _scripts[${script_name}]="${script}"
     done < <(find "${_path}" -type f -regex ".*/dm-.*" -print0)
 
-    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | ${RMENU} 'Run Script:' "$@")
+    choice=$(printf '%s\n' "${!_scripts[@]}" | sort | grep ".*dm.*" | ${RMENU} 'Run Script:' "$@")
 
     if [ "${choice}" ]; then
         thecommand="$(printf '%s' "${_scripts["${choice}"]}" | awk '{print $1}')"
