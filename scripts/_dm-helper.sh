@@ -176,3 +176,42 @@ The folowing OPTIONS are accepted:
 Running" " $(basename "$0") " "without any argument defaults to using 'dmenu'
 Run 'man dmscripts' for more information"
 }
+
+####################
+# Handle Arguments #
+####################
+
+# this function is a simple parser designed to get the menu program and then exit prematurally
+get_menu_program() {
+    # If script is run with '-d', it will use 'dmenu'
+    # If script is run with '-f', it will use 'fzf'
+    # If script is run with '-r', it will use 'rofi'
+    while getopts "dfrh" arg 2>/dev/null; do
+        case "${arg}" in
+        d) # shellcheck disable=SC2153
+            echo "${DMENU}"
+            return 0
+            ;;
+        f) # shellcheck disable=SC2153
+            echo "${FMENU}"
+            return 0
+            ;;
+        r) # shellcheck disable=SC2153
+            echo "${RMENU}"
+            return 0
+            ;;
+        h)
+            help
+            return 1
+            ;;
+        *)
+            echo "invalid option:
+Type $(basename "$0") -h for help" >/dev/stderr
+            return 1
+            ;;
+        esac
+    done
+    echo "Did not find menu argument, using \${DMENU}" >/dev/stderr
+    # shellcheck disable=SC2153
+    echo "${DMENU}"
+}
