@@ -126,35 +126,13 @@ grep-desktop() {
 #   Parsing   #
 ###############
 
+# simple function which provides a key-value pair in the form of the DM_XML_TAG and DM_XML_VALUE varaibles
 xmlgetnext() {
     local IFS='>'
-    # we need to mangle backslashes for this to work
-    # shellcheck disable=SC2162
-    read -d '<' TAG VALUE
-}
-
-parse_rss() {
-    echo "$1" | while xmlgetnext; do
-        case $TAG in
-        'entry')
-            title=''
-            link=''
-            published=''
-            ;;
-        'media:title')
-            title="$VALUE"
-            ;;
-        'yt:videoId')
-            link="$VALUE"
-            ;;
-        'published')
-            published="$(date --date="${VALUE}" "+%Y-%m-%d %H:%M")"
-            ;;
-        '/entry')
-            echo " ${published} | ${link} | ${title}"
-            ;;
-        esac
-    done
+    # we need to mangle backslashes for this to work (SC2162)
+    # The DM_XML_* variables are global variables and are expected to be read and dealt with by someone else (SC2034)
+    # shellcheck disable=SC2162,SC2034
+    read -d '<' DM_XML_TAG DM_XML_VALUE
 }
 
 #################
