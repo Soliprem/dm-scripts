@@ -211,37 +211,37 @@ Type $(basename "$0") -h for help" >/dev/stderr
 # this warning is simply not necessary anywhere in the scope
 # shellcheck disable=SC1091
 source_dmscripts_configs() {
-
     # developers should not have other configurations running for development purposes so we exit
     if [ -f "../config/config" ]; then
         source "../config/config"
         return 0
     fi
 
+    XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-}"
     # we let this one run fine because in contrast to before, we want defaults in case
     # a user unsets a variable by mistake, for example.
 
     [ -f "/etc/dmscripts/config" ] && source "/etc/dmscripts/config"
-    [ -z "$XDG_CONFIG_HOME" ] && [ -f "$HOME/.config/dmscripts/config" ] && source "$HOME/.config/dmscripts/config"
-    [ -n "$XDG_CONFIG_HOME" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && source "$XDG_CONFIG_HOME/dmscripts/config"
+    [ -z "$XDG_CONFIG_HOME" ] && [ -f "$HOME/.config/dmscripts/config" ] && source "$HOME/.config/dmscripts/config" && return 0
+    [ -n "$XDG_CONFIG_HOME" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && source "$XDG_CONFIG_HOME/dmscripts/config" && return 0
 }
 
 # checks the base configuration file and compares it with the local configuration file
-# if the numbers are different then the code will return 1, else 0
+# if the numbers are different then the code will return 0, else 1
 #
 # some variables are temporarily setup to ensure bash doesn't complain
 configs_are_different() {
     local _base_file=""
     local _config_file=""
     DM_SHUTUP="${DM_SHUTUP:-}"
-    [ -f "/etc/dmscripts/config" ] && _base_file="/etc/dmscripts/config" || return 0
+    [ -f "/etc/dmscripts/config" ] && _base_file="/etc/dmscripts/config" || return 1
 
     local _xdg_config_home="${XDG_CONFIG_HOME:-}"
 
     [ -z "$_xdg_config_home" ] && [ -f "$HOME/.config/dmscripts/config" ] && _config_file="$HOME/.config/dmscripts/config"
     [ -n "$_xdg_config_home" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && _config_file="$XDG_CONFIG_HOME/dmscripts/config"
 
-    [ -z "$_config_file" ] && return 0
+    [ -z "$_config_file" ] && return 1
 
     _config_file_revision=$(grep "^_revision=" "${_config_file}")
     _base_file_revision=$(grep "^_revision=" "${_base_file}")
@@ -250,8 +250,8 @@ configs_are_different() {
         if [ -z "$DM_SHUTUP" ]; then
             notify-send "dmscripts configuration outdated" "Review the differences of /etc/dmscripts/config and your local config and apply changes accordingly (dont forget to bump the revision number)"
         fi
-        return 1
+        return 0
     fi
 
-    return 0
+    return 1
 }
