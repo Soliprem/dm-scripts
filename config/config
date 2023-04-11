@@ -244,4 +244,4 @@ weather_locations=""
 # for full details see: https://github.com/chubin/wttr.in
 
 # current revision (do not touch unless you know what you're doing)
-_revision=23
+_revision=24
