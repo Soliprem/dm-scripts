@@ -68,7 +68,7 @@ main() {
     'Logout')
         if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?" "${@}")" == "Yes" ]]; then
             for manager in "${MANAGERS[@]}"; do
-                loginctl terminate-user $USER
+                loginctl terminate-user "$USER"
             done
         else
             output "User chose not to logout." && exit 1
