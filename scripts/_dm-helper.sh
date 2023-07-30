@@ -126,35 +126,13 @@ grep-desktop() {
 #   Parsing   #
 ###############
 
+# simple function which provides a key-value pair in the form of the DM_XML_TAG and DM_XML_VALUE varaibles
 xmlgetnext() {
     local IFS='>'
-    # we need to mangle backslashes for this to work
-    # shellcheck disable=SC2162
-    read -d '<' TAG VALUE
-}
-
-parse_rss() {
-    echo "$1" | while xmlgetnext; do
-        case $TAG in
-        'entry')
-            title=''
-            link=''
-            published=''
-            ;;
-        'media:title')
-            title="$VALUE"
-            ;;
-        'yt:videoId')
-            link="$VALUE"
-            ;;
-        'published')
-            published="$(date --date="${VALUE}" "+%Y-%m-%d %H:%M")"
-            ;;
-        '/entry')
-            echo " ${published} | ${link} | ${title}"
-            ;;
-        esac
-    done
+    # we need to mangle backslashes for this to work (SC2162)
+    # The DM_XML_* variables are global variables and are expected to be read and dealt with by someone else (SC2034)
+    # shellcheck disable=SC2162,SC2034
+    read -d '<' DM_XML_TAG DM_XML_VALUE
 }
 
 #################
@@ -175,4 +153,105 @@ The folowing OPTIONS are accepted:
 
 Running" " $(basename "$0") " "without any argument defaults to using 'dmenu'
 Run 'man dmscripts' for more information"
+}
+
+####################
+# Handle Arguments #
+####################
+
+# this function is a simple parser designed to get the menu program and then exit prematurally
+get_menu_program() {
+    # If script is run with '-d', it will use 'dmenu'
+    # If script is run with '-f', it will use 'fzf'
+    # If script is run with '-r', it will use 'rofi'
+    while getopts "dfrh" arg 2>/dev/null; do
+        case "${arg}" in
+        d) # shellcheck disable=SC2153
+            echo "${DMENU}"
+            return 0
+            ;;
+        f) # shellcheck disable=SC2153
+            echo "${FMENU}"
+            return 0
+            ;;
+        r) # shellcheck disable=SC2153
+            echo "${RMENU}"
+            return 0
+            ;;
+        h)
+            help
+            return 1
+            ;;
+        *)
+            echo "invalid option:
+Type $(basename "$0") -h for help" >/dev/stderr
+            return 1
+            ;;
+        esac
+    done
+    echo "Did not find menu argument, using \${DMENU}" >/dev/stderr
+    # shellcheck disable=SC2153
+    echo "${DMENU}"
+}
+
+#########################################
+# Experimental Simpler Boilerplate Code #
+#########################################
+
+# this function will source the dmscripts config files in the order specified below:
+#
+# Config priority (in order of which code takes precendent over the other):
+# 1. Git repository config - For developers
+# 2. $XDG_CONFIG_HOME/dmscripts/config || $HOME/.config/dmscripts/config - For local edits
+# 3. /etc/dmscripts/config - For the gloabl/default configuration
+#
+# Note that if ../config/config is a real file then we will source it and immediately exit as
+# developers should not be having other configurations running on the system.
+
+# this warning is simply not necessary anywhere in the scope
+# shellcheck disable=SC1091
+source_dmscripts_configs() {
+    # developers should not have other configurations running for development purposes so we exit
+    if [ -f "../config/config" ]; then
+        source "../config/config"
+        return 0
+    fi
+
+    XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-}"
+    # we let this one run fine because in contrast to before, we want defaults in case
+    # a user unsets a variable by mistake, for example.
+
+    [ -f "/etc/dmscripts/config" ] && source "/etc/dmscripts/config"
+    [ -z "$XDG_CONFIG_HOME" ] && [ -f "$HOME/.config/dmscripts/config" ] && source "$HOME/.config/dmscripts/config" && return 0
+    [ -n "$XDG_CONFIG_HOME" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && source "$XDG_CONFIG_HOME/dmscripts/config" && return 0
+}
+
+# checks the base configuration file and compares it with the local configuration file
+# if the numbers are different then the code will return 0, else 1
+#
+# some variables are temporarily setup to ensure bash doesn't complain
+configs_are_different() {
+    local _base_file=""
+    local _config_file=""
+    DM_SHUTUP="${DM_SHUTUP:-}"
+    [ -f "/etc/dmscripts/config" ] && _base_file="/etc/dmscripts/config" || return 1
+
+    local _xdg_config_home="${XDG_CONFIG_HOME:-}"
+
+    [ -z "$_xdg_config_home" ] && [ -f "$HOME/.config/dmscripts/config" ] && _config_file="$HOME/.config/dmscripts/config"
+    [ -n "$_xdg_config_home" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && _config_file="$XDG_CONFIG_HOME/dmscripts/config"
+
+    [ -z "$_config_file" ] && return 1
+
+    _config_file_revision=$(grep "^_revision=" "${_config_file}")
+    _base_file_revision=$(grep "^_revision=" "${_base_file}")
+
+    if [[ ! "${_config_file_revision}" == "${_base_file_revision}" ]]; then
+        if [ -z "$DM_SHUTUP" ]; then
+            notify-send "dmscripts configuration outdated" "Review the differences of /etc/dmscripts/config and your local config and apply changes accordingly (dont forget to bump the revision number)"
+        fi
+        return 0
+    fi
+
+    return 1
 }

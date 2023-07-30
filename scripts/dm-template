@@ -30,7 +30,10 @@ check_updated_config
 
 template_choice() {
     printf "simple: a minimal template for personal usage
-contrib: the standard contribution template" | ${MENU} "Choose a template" | cut -d':' -f1
+contrib: the standard contribution template
+simple-experimental: like simple, but with experimental features
+contrib-experimental: like contrib, but with experimental features" \
+        | ${MENU} "Choose a template" | cut -d':' -f1
 }
 
 generate_simple() {
@@ -47,19 +50,49 @@ generate_simple() {
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-source /usr/bin/_dm-helper.sh \\
-    || source /bin/_dm-helper.sh \\
-    || source /usr/local/bin/_dm-helper.sh \\
-    || source ./_dm-helper.sh
+source ./_dm-helper.sh || source _dm-helper.sh
 
 source \"\$(get_config)\"
 
 # Check if config has updates that should be displayed to the user
-check_updated_config
+# Uncomment for nagging
+# check_updated_config
 
 main() {
     # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
 }
+main
+" "$script_name" "$description" >"$script_name"
+    chmod 755 "$script_name"
+}
+
+generate_simple_experimental() {
+    script_name=$(echo "" | ${MENU} "What is the name of the project?")
+    [ -e "$script_name" ] || [ -z "$script_name" ] && err "Invalid script name! already exists"
+    description=$(echo "" | ${MENU} "Description of the tool")
+    printf "#!/usr/bin/env bash
+#
+# Script name: %s
+# Description: %s
+
+# Set with the flags \"-e\", \"-u\",\"-o pipefail\" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+source ./_dm-helper.sh || source _dm-helper.sh
+
+source_dmscripts_configs
+
+# this script won't nag by default, uncomment for nagging
+#if configs_are_different; then
+#    echo \"\$(date): configs are different\" >>\"\$DM_CONFIG_DIFF_LOGFILE\"
+#fi
+
+main() {
+    # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
+}
+main
 " "$script_name" "$description" >"$script_name"
     chmod 755 "$script_name"
 }
@@ -131,10 +164,50 @@ done
     chmod 755 "$script_name"
 }
 
+generate_contrib_experimental() {
+    script_name=$(echo "" | ${MENU} "What is the name of the project?")
+    [ -e "$script_name" ] || [ -z "$script_name" ] && err "Invalid script name! already exists"
+    description=$(echo "" | ${MENU} "Description of the tool")
+    deps=$(echo "" | ${MENU} "What are the dependencies (space seperate list)?")
+    contributor=$(echo "" | ${MENU} "Who is the author of the script?")
+    printf "#!/usr/bin/env bash
+#
+# Script name: %s 
+# Description: %s 
+# Dependencies: %s 
+# GitLab: https://www.gitlab.com/dwt1/dmscripts
+# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
+# Contributors: %s 
+
+# Set with the flags \"-e\", \"-u\",\"-o pipefail\" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+# shellcheck disable=SC1090,SC1091
+source ./_dm-helper.sh || source _dm-helper.sh 2>/dev/null
+
+source_dmscripts_configs
+
+if configs_are_different; then
+    echo \"\$(date): configs are different\" >>\"\$DM_CONFIG_DIFF_LOGFILE\"
+fi
+
+main() {
+    # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
+}
+MENU=\"\$(get_menu_program \"\$@\")\"
+[[ \"\${BASH_SOURCE[0]}\" == \"\${0}\" ]] && main
+" "$script_name" "$description" "$deps" "$contributor" >"$script_name"
+    chmod 755 "$script_name"
+}
+
 main() {
     case "$(template_choice)" in
     simple) generate_simple ;;
     contrib) generate_contrib ;;
+    simple-experimental) generate_simple_experimental ;;
+    contrib-experimental) generate_contrib_experimental ;;
     *) err "Invalid template choice" ;;
     esac
 }
