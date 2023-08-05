@@ -76,6 +76,34 @@ currentPlaylist() {
     mpc play "$(echo "${music_list}" | awk -v pattern="$music" '$0 ~ pattern { print NR; exit }')"
 }
 
+main() {
+    declare -a choices=(
+	"Play"
+        "Toggle"
+        "Current Playlist"
+        "Queue Playlist"
+)
+
+choice=$(printf '%s\n' "${choices[@]}" | ${MENU} 'Music Player:' "$@") || exit 1
+
+case $choice in
+Play)
+    play ;;
+
+Toggle)
+    mpc toggle ;;
+
+Current\ Playlist)
+    currentPlaylist ;;
+
+Queue\ Playlist)
+    queuePlaylist ;;
+*)
+    exit ;;
+esac
+
+}
+
 # We write a unique help function for dm-music since it has
 # more options than the typical dmscript.
 help() {
@@ -107,23 +135,20 @@ noOpt=1
 # If script is run with '-d', it will use 'dmenu'
 # If script is run with '-f', it will use 'fzf'
 # If script is run with '-d', it will use 'rofi'
-while getopts "dfrhqpt" arg 2>/dev/null; do
+while getopts "dfrh" arg 2>/dev/null; do
     case "${arg}" in
     d) # shellcheck disable=SC2153
         MENU=${DMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
         ;;
     f) # shellcheck disable=SC2153
         MENU=${FMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
         ;;
     r) # shellcheck disable=SC2153
         MENU=${RMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play
+        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
         ;;
-    q) queuePlaylist ;;
-    p) currentPlaylist ;;
-    t) mpc toggle ;;
     h) help ;;
     *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
@@ -131,4 +156,4 @@ while getopts "dfrhqpt" arg 2>/dev/null; do
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && play "$@"
+[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
