@@ -116,8 +116,6 @@ The folowing OPTIONS are accepted:
     -d  runs the script using 'dmenu'
     -f  runs the script using 'fzf'
     -r  runs the script using 'rofi'
-    -q  queue a playlist
-    -p  select music for the queued playlist
 
 Some useful mpc commands:
     mpc toggle\t\t\ttoggle between pause and play state
