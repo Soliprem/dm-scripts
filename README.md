@@ -191,7 +191,7 @@ This script currently works on Qutebrowser, Brave, Chromium and Firefox. But whe
 
 ### dm-music
 
-This script depends on the `mpd` daemon to already be running. To start the daemon, open a terminal and run:
+This script depends on the `mpd` daemon to already be running and the `mpc` command line music player to be installed. To start the `mpd` daemon, open a terminal and run:
 
 ```
 mpd &
