@@ -17,7 +17,7 @@ dmscripts originally began life as a collection of scripts designed to use dmenu
 
 The scripts included in this repo are:
 
-+ dm-bookman - Search your qutebrowser bookmarks, quickmarks and history urls.
++ dm-bookman - Search your browser bookmarks, quickmarks and history urls.
 + dm-colpick - Copy a color's hex value to your clipboard
 + dm-confedit - Choose from a list of configuration files to edit.
 + dm-dictionary - Simple dictionary script
@@ -94,7 +94,7 @@ $ makepkg -cf
 $ sudo pacman -U *.pkg.tar.zst
 ```
 
-Alternatively, you could install dmscripts from the AUR using an AUR helper such as yay:
+Alternatively, you could install dmscripts from the AUR using an AUR helper such as yay or paru:
 
 ```bash
 $ yay -S dmscripts-git
@@ -182,3 +182,8 @@ config_dirs+=(
 "/etc/dmscripts/config"
 )
 ```
+
+## Some Quirks With Certain Scripts
+
+### dm-bookman
+This script currently works on Qutebrowser, Brave, Chromium and Firefox. But when you run the script for the first time, sometimes it does not cache any of your browser's bookmarks and/or history. This is likely due to the browser's database being locked because you already have the browser open.  Make sure the browser isn't running when you run `dm-bookman` for the first time so it can properly read the browser's database and cache it for `dm-bookman` to use.
