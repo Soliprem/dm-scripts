@@ -186,4 +186,12 @@ config_dirs+=(
 ## Some Quirks With Certain Scripts
 
 ### dm-bookman
+
 This script currently works on Qutebrowser, Brave, Chromium and Firefox. But when you run the script for the first time, sometimes it does not cache any of your browser's bookmarks and/or history. This is likely due to the browser's database being locked because you already have the browser open.  Make sure the browser isn't running when you run `dm-bookman` for the first time so it can properly read the browser's database and cache it for `dm-bookman` to use.
+
+### dm-music
+
+This script depends on the `mpd` daemon to already be running. To start the daemon, open a terminal and run:
+
+```mpd &
+```
