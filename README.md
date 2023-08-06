@@ -193,5 +193,6 @@ This script currently works on Qutebrowser, Brave, Chromium and Firefox. But whe
 
 This script depends on the `mpd` daemon to already be running. To start the daemon, open a terminal and run:
 
-```mpd &
+```
+mpd &
 ```
