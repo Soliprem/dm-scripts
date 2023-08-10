@@ -78,29 +78,34 @@ currentPlaylist() {
 
 main() {
     declare -a choices=(
-	"Play"
+        "Play"
         "Toggle"
         "Current Playlist"
         "Queue Playlist"
-)
+    )
 
-choice=$(printf '%s\n' "${choices[@]}" | ${MENU} 'Music Player:' "$@") || exit 1
+    choice=$(printf '%s\n' "${choices[@]}" | ${MENU} 'Music Player:' "$@") || exit 1
 
-case $choice in
-Play)
-    play ;;
+    case $choice in
+    Play)
+        play
+        ;;
 
-Toggle)
-    mpc toggle ;;
+    Toggle)
+        mpc toggle
+        ;;
 
-Current\ Playlist)
-    currentPlaylist ;;
+    Current\ Playlist)
+        currentPlaylist
+        ;;
 
-Queue\ Playlist)
-    queuePlaylist ;;
-*)
-    exit ;;
-esac
+    Queue\ Playlist)
+        queuePlaylist
+        ;;
+    *)
+        exit
+        ;;
+    esac
 
 }
 

@@ -32,10 +32,28 @@ check_updated_config
 main() {
     # Clean options array making sure that the files exist
     declare -A _clean_list
+
+    # dynamically add additional entries
+    XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+    local dyn
+    dyn="$(find "$XDG_CONFIG_HOME" -type f)"
+
+    IFS=$'\n'
+    for _path in $dyn; do
+        dyn_name="$(echo "$_path" | sed "s|$XDG_CONFIG_HOME||g; s|/| |g")"
+        _clean_list["dynamic: $dyn_name"]="$_path"
+    done
+    IFS=" "
+
     # As this is loaded from other file it is technically not defined
     # shellcheck disable=SC2154
     for i in "${!confedit_list[@]}"; do
-        [[ -f ${confedit_list["${i}"]} ]] && _clean_list["${i}"]=${confedit_list["${i}"]}
+
+        if printf "%s\n" "${_clean_list[@]}" | grep -qw "${confedit_list["${i}"]}"; then
+            continue
+        fi
+
+        [[ -f ${confedit_list["${i}"]} ]] && _clean_list["static:   ${i}"]=${confedit_list["${i}"]}
     done
 
     # Piping the above array (cleaned) into dmenu.
