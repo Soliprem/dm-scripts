@@ -83,6 +83,25 @@ maim_file_prefix="maim"
 note_dir="${HOME}/.config/dmscripts/dmnote"
 
 # dm-confedit
+# no means it will use only static entries 
+confedit_isdynamic="yes"
+
+# a list of directories to exclude in conf edit
+# as an example: to exclude anything from the folder .config/foo and .config/bar, put "foo|bar"
+# It takes any regexp and is case insensitive
+confedit_exclude_dirs="BraveSoftware"
+
+
+# If this variable is blank or is defined as "find", then it uses find
+# Examples:
+# locate: locate
+# fd: fd .
+# find: find
+# etc
+# Note that there is no need to include any arguments excluding directories, that is handled autmatically
+confedit_find_prog="find"
+
+# a list of static config files that may not be in the expected places
 declare -A confedit_list
 confedit_list[confedit]="$HOME/.config/dmscripts/config"
 confedit_list[alacritty]="$HOME/.config/alacritty/alacritty.yml"
@@ -242,4 +261,4 @@ weather_locations=""
 # for full details see: https://github.com/chubin/wttr.in
 
 # current revision (do not touch unless you know what you're doing)
-_revision=24
+_revision=25
