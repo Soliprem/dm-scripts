@@ -141,7 +141,7 @@ xmlgetnext() {
 
 # Every script has a '-h' option that displays the following information.
 help() {
-    printf '%s' "Usage: $(basename "$0") [options]
+    printf '%s%s%s\n' "Usage: $(basename "$0") [options]
 $(grep '^# Description: ' "$0" | sed 's/# Description: /Description: /g')
 $(grep '^# Dependencies: ' "$0" | sed 's/# Dependencies: /Dependencies: /g')
 
