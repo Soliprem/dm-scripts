@@ -25,6 +25,7 @@ The scripts included in this repo are:
 + dm-hub - A hub from where you can run all the scripts from.
 + dm-ip - Get IP of interface or external IP
 + dm-kill - Search for a process to kill.
++ dm-lights - A tool to manage your backlights.
 + dm-logout - Logout, shutdown, reboot or lock screen.
 + dm-maim - A GUI to maim using dmenu.
 + dm-man - Search for a manpage or get a random one.
