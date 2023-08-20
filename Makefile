@@ -25,10 +25,22 @@ install:
 	install -Dm644 README.md "$(DESTDIR)$(PREFIX)/share/doc/$(NAME)/README.md"
 	install -Dm644 config/config "$(DESTDIR)/etc/dmscripts/config"
 
+uninstall:
+	echo $(DESTDIR)$(MANPREFIX)
+	rm $(addprefix $(PREFIX)/bin/,$(SCRIPTS:./scripts/%=%))
+	rm $(DESTDIR)$(MANPREFIX)/man1/dmscripts.1.gz
+	rm "$(DESTDIR)$(PREFIX)/share/licenses/$(NAME)/LICENSE"
+	rm "$(DESTDIR)$(PREFIX)/share/doc/$(NAME)/README.md"
+	rm "$(DESTDIR)/etc/dmscripts/config"
+
+list:
+	echo "Prefix $(PREFIX)"
+	echo "Manprefix $(MANPREFIX)"
+
 clean:
 	$(shell [ -f man/dmscripts.1.gz ] && rm man/dmscripts.1.gz )
 	@echo "done"
 
-.PHONY: clean build install
+.PHONY: clean build install uninstall list
 
 
