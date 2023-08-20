@@ -34,6 +34,8 @@ Allows you to switch between predefined equalizer profiles easily.
 Get IP of interface or external IP.
 ** dm-kill
 Simple process killer, find and kill misbehaving processes.
+** dm-lights 
+A tool to manage your backlights.
 ** dm-logout
 Simple logout menu, choose to lock, shutdown, reboot or logout of your computer.
 ** dm-maim
