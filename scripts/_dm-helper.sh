@@ -152,7 +152,7 @@ The folowing OPTIONS are accepted:
     -r  runs the script using 'rofi'
 
 Running" " $(basename "$0") " "without any argument defaults to using 'dmenu'
-Run 'man dmscripts' for more information"
+Run 'man dmscripts' for more information" >/dev/stderr
 }
 
 ####################
