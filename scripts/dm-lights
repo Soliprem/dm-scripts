@@ -19,6 +19,7 @@ source_dmscripts_configs
 
 if configs_are_different; then
     echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
+    sleep 1
 fi
 
 put_x_to_head() {

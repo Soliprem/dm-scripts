@@ -32,71 +32,7 @@ This project also expects a few other things of you:
 
 All scripts must be named in the format ```dm-[scriptname]```. Avoid naming conflicts if possible.
 
-You can generate boilerplate by using ./dm-template or by copying this code into your editor of choice:
-
-```bash
-#!/usr/bin/env bash
-#
-# Script name: template
-# Description: A template file for users to use as a basis to modify their scripts.
-# Dependencies: dmenu rofi fzf other-dependencies-here
-# GitLab: https://www.gitlab.com/dwt1/dmscripts
-# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
-# Contributors: John Doe
-
-# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
-# if certain things happen, which is a good thing.  Otherwise, we can
-# get hidden bugs that are hard to discover.
-set -euo pipefail
-
-_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[ -f "${_path}/_dm-helper.sh" ]]; then
-    # shellcheck disable=SC1090,SC1091
-    source "${_path}/_dm-helper.sh"
-else
-    # shellcheck disable=SC1090
-    echo "No helper-script found"
-fi
-
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
-
-# Check if config has updates that should be displayed to the user
-check_updated_config
-
-main() {
-    # DEFINE A MAIN FUNCTION HERE WITH YOUR CODE!
-}
-
-noOpt=1
-# If script is run with '-d', it will use 'dmenu'
-# If script is run with '-f', it will use 'fzf'
-# If script is run with '-d', it will use 'rofi'
-while getopts "dfrh" arg 2>/dev/null; do
-    case "${arg}" in
-    d) # shellcheck disable=SC2153
-        MENU=${DMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
-        ;;
-    f) # shellcheck disable=SC2153
-        MENU=${FMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
-        ;;
-    r) # shellcheck disable=SC2153
-        MENU=${RMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
-        ;;
-    h) help ;;
-    *) err "invalid option:
-Type $(basename "$0") -h for help" ;;
-    esac
-    noOpt=0
-done
-
-# If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
-```
+You can generate boilerplate by using ./dm-template and selecting the contrib option.
 
 It is important to follow the style of the template above.  Especially important is including in the comments the lines that begin with "# Description:" and "# Dependencies" since these are used to display help information when the script is run with the '-h' option.
 
