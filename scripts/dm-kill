@@ -12,35 +12,30 @@
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
 set -euo pipefail
-_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[ -f "${_path}/_dm-helper.sh" ]]; then
-    # shellcheck disable=SC1090,SC1091
-    source "${_path}/_dm-helper.sh"
-else
-    # shellcheck disable=SC1090
-    echo "No helper-script found"
+
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+
+source_dmscripts_configs
+
+if configs_are_different; then
+    echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
+    sleep 1
 fi
-
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
-
-# Check if config has updates that should be displayed to the user
-check_updated_config
 
 main() {
     # Running ps to get running processes and display in dmenu.
     # In this script we use a variable called $DMENU, in your scripts, you
     # should just write dmenu or rofi or whatever launcher you use.
     selected="$(ps --user "$USER" -F \
-        | ${MENU} "Search for process to kill:" "$@" \
+        | ${MENU} "Search for process to kill:" \
         | awk '{print $2" "$11}')"
 
     # Nested 'if' statements.  The outer 'if' statement is what to do
     # when we select one of the 'selected' options listed in dmenu.
     if [[ -n $selected ]]; then
         # Piping No/Yes into dmenu as a safety measure, in case you
-        answer="$(echo -e "No\nYes" | ${MENU} "Kill $selected?" "$@")"
+        answer="$(echo -e "No\nYes" | ${MENU} "Kill $selected?")"
 
         if [[ $answer == "Yes" ]]; then
             # This echo command prints everything before the first space.
@@ -57,29 +52,5 @@ main() {
     fi
 }
 
-noOpt=1
-# If script is run with '-d', it will use 'dmenu'
-# If script is run with '-f', it will use 'fzf'
-# If script is run with '-d', it will use 'rofi'
-while getopts "dfrh" arg 2>/dev/null; do
-    case "${arg}" in
-    d) # shellcheck disable=SC2153
-        MENU=${DMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
-        ;;
-    f) # shellcheck disable=SC2153
-        MENU=${FMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
-        ;;
-    r) # shellcheck disable=SC2153
-        MENU=${RMENU}
-        [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "@"
-        ;;
-    h) help ;;
-    *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
-    esac
-    noOpt=0
-done
-
-# If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+MENU="$(get_menu_program "$@")"
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main

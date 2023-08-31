@@ -15,16 +15,16 @@
 set -euo pipefail
 
 _path=$(dirname "$(realpath "$0")")
-[[ ! -f "${_path}/_dm-helper.sh" ]] && echo "No helper-script found"
-# shellcheck disable=SC1090,SC1091
-source "${_path}/_dm-helper.sh"
 
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
 
-# Check if config has updates that should be displayed to the user
-check_updated_config
+source_dmscripts_configs
+
+if configs_are_different; then
+    echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
+    sleep 1
+fi
 
 function maindmenu() {
     local _self
@@ -115,3 +115,5 @@ done
 
 # If script is run with NO argument, it will use 'dmenu'
 [ $noOpt = 1 ] && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu "$@"
+
+# TODO: for some reason dm-template is broken with this script, needs investigating
