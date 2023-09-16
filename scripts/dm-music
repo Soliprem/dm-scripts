@@ -53,7 +53,7 @@ play() {
     mpc repeat on
 }
 
-queuePlaylist() {
+queue_playlist() {
     playlist="$(mpc lsplaylists | ${MENU} "Your playlists")" || exit 1
     mpc -q clear
     mpc load "$playlist"
@@ -61,7 +61,7 @@ queuePlaylist() {
     echo "$playlist" >"${HOME}/.cache/current_playlist"
 }
 
-currentPlaylist() {
+current_playlist() {
     playlist="$(cat "${HOME}/.cache/current_playlist")"
     music_list="$(mpc playlist "${playlist}")"
     music="$(echo "${music_list}" | ${MENU} "Music to play")" || exit 1
@@ -90,11 +90,11 @@ main() {
         ;;
 
     Current\ Playlist)
-        currentPlaylist
+        current_playlist
         ;;
 
     Queue\ Playlist)
-        queuePlaylist
+        queue_playlist
         ;;
     *)
         exit
@@ -128,7 +128,7 @@ Run 'man dmscripts' for more information"
 
 }
 
-noOpt=1
+no_opt=1
 # If script is run with '-d', it will use 'dmenu'
 # If script is run with '-f', it will use 'fzf'
 # If script is run with '-d', it will use 'rofi'
@@ -149,8 +149,8 @@ while getopts "dfrh" arg 2>/dev/null; do
     h) help ;;
     *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
-    noOpt=0
+    no_opt=0
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+[ $no_opt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

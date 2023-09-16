@@ -29,48 +29,48 @@ main() {
     # The echo to /dev/null is just a hacky way of giving
     # dmenu some input without really giving any input.
     # shellcheck disable=SC2260
-    WORD="$(echo "" >/dev/null | ${MENU} "Enter word to lookup:")"
-    TESTWORD="$(dym -c -n=1 "$WORD")"
+    word="$(echo "" >/dev/null | ${MENU} "Enter word to lookup:")"
+    testword="$(dym -c -n=1 "$word")"
 
-    if [ "$WORD" != "$TESTWORD" ]; then
-        KEYWORD=$(dym -c "$WORD" | ${MENU} "was $WORD a misspelling?(select/no)")
-        if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
-            KEYWORD="$WORD"
+    if [ "$word" != "$testword" ]; then
+        keyword=$(dym -c "$word" | ${MENU} "was $word a misspelling?(select/no)")
+        if [ "$keyword" = "no" ] || [ "$keyword" = "n" ]; then
+            keyword="$word"
         fi
     else
-        KEYWORD="$WORD"
+        keyword="$word"
     fi
 
-    if ! [ "${KEYWORD}" ]; then
+    if ! [ "${keyword}" ]; then
         printf 'No word inserted\n' >&2
         exit 0
     fi
-    $DMTERM trans -v -d "$KEYWORD"
+    $DMTERM trans -v -d "$keyword"
 }
 
 mainfzf() {
     # shellcheck disable=SC2260
-    WORD="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to lookup:")"
-    TESTWORD="$(dym -c -n=1 "$WORD")"
+    word="$(echo " " | fzf --bind 'return:print-query' --prompt "Enter word to lookup:")"
+    testword="$(dym -c -n=1 "$word")"
 
-    if [ "$WORD" != "$TESTWORD" ]; then
+    if [ "$word" != "$testword" ]; then
         # shellcheck disable=SC2153
-        KEYWORD=$(dym -c "$WORD" | ${FMENU} "was $WORD a misspelling?(select/no)")
-        if [ "$KEYWORD" = "no" ] || [ "$KEYWORD" = "n" ]; then
-            KEYWORD="$WORD"
+        keyword=$(dym -c "$word" | ${FMENU} "was $word a misspelling?(select/no)")
+        if [ "$keyword" = "no" ] || [ "$keyword" = "n" ]; then
+            keyword="$word"
         fi
     else
-        KEYWORD="$WORD"
+        keyword="$word"
     fi
 
-    if ! [ "${KEYWORD}" ]; then
+    if ! [ "${keyword}" ]; then
         printf 'No word inserted\n' >&2
         exit 0
     fi
-    $DMTERM trans -v -d "$KEYWORD"
+    $DMTERM trans -v -d "$keyword"
 }
 
-noOpt=1
+no_opt=1
 # If script is run with '-d', it will use 'dmenu'
 # If script is run with '-f', it will use 'fzf'
 # If script is run with '-d', it will use 'rofi'
@@ -89,8 +89,8 @@ while getopts "dfrh" arg 2>/dev/null; do
     h) help ;;
     *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
-    noOpt=0
+    no_opt=0
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+[ $no_opt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

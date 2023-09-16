@@ -39,17 +39,17 @@ Running" " $(basename "$0") " "without any argument displays this help text.
 Run 'man dmscripts' for more information"
 }
 
-driveCount() {
+drive_count() {
     count="$(echo "$1" | wc -l)"
 }
 
-mountAll() {
+mount_all() {
     while IFS= read -r drive; do
         udisksctl mount -b "${drive%% *}"
     done < <(printf '%s\n' "$mountable")
 }
 
-unmountAll() {
+unmount_all() {
     while IFS= read -r drive; do
         udisksctl unmount -b "$drive"
         # done < <(printf '%s\n' "$mounted")
@@ -60,12 +60,12 @@ mount() {
     mountable="$(lsblk -lp | awk '/^\/dev\/sd.*part $/ { print $1 " ("$4")" }')"
     [ "$mountable" = "" ] && exit 1
 
-    driveCount "$mountable"
+    drive_count "$mountable"
     [ "$count" = "1" ] && options="$mountable" || options="$mountable\nall"
 
     chosen="$(printf '%s' "$options" | ${MENU} "Drive to mount?")" || exit 1
     if [ "$chosen" = "all" ]; then
-        mountAll
+        mount_all
     else
         udisksctl mount -b "${chosen%% *}"
     fi
@@ -76,20 +76,20 @@ unmount() {
     mounted="$(lsblk -lp | grep 'run')"
     [ "$mounted" = "" ] && exit 1
 
-    # driveCount "$mounted"
-    driveCount "${mounted%%* }"
+    # drive_count "$mounted"
+    drive_count "${mounted%%* }"
     # [ "$count" = "1" ] && options="$mounted" || options="$mounted\nall"
     [ "$count" = "1" ] && options="${mounted%%* }" || options="${mounted%%* }\nall"
 
     chosen="$(printf '%s' "${options}" | ${MENU} "Drive to unmount?")"
     if [ "$chosen" = "all" ]; then
-        unmountAll
+        unmount_all
     else
         udisksctl unmount -b "$chosen"
     fi
 }
 
-noOpt=1
+no_opt=1
 # If script is run with '-d', it will use 'dmenu'
 # If script is run with '-f', it will use 'fzf'
 # If script is run with '-d', it will use 'rofi'
@@ -122,8 +122,8 @@ while getopts "dDfFrRh" arg 2>/dev/null; do
     h) help ;;
     *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
-    noOpt=0
+    no_opt=0
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && help "$@"
+[ $no_opt = 1 ] && MENU=${DMENU} && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && help "$@"
