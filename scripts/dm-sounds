@@ -67,12 +67,12 @@ https://gitlab.com/dtos/etc/dtos-dmscripts/-/tree/main/etc/dtos/.config/dmscript
         echo "$_pid" >"$HOME/.cache/dmsounds"
 
     elif [ "$choice" == "Play random sound" ]; then
-        getRand=$(printf '%s\n' "${_sounds_list[@]}" | shuf -n 1)
+        get_rand=$(printf '%s\n' "${_sounds_list[@]}" | shuf -n 1)
         # Kill PID saved in cache file.
         kill "$(cat "$HOME/.cache/dmsounds")" || echo "mpv was not running."
         # Play random sound file.
-        mpv --no-video --loop "$sounds_dir/$getRand" >/dev/null 2>&1 &
-        # ffplay -nodisp -loop 0 "$sounds_dir/$getRand" &
+        mpv --no-video --loop "$sounds_dir/$get_rand" >/dev/null 2>&1 &
+        # ffplay -nodisp -loop 0 "$sounds_dir/$get_rand" &
         # Get PID for the above command and write to cache.
         _pid=$!
         echo "$_pid" >"$HOME/.cache/dmsounds"

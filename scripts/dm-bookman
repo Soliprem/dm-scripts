@@ -35,7 +35,7 @@ _quickmarks_file="$HOME/.config/qutebrowser/quickmarks"
 
 # Do query against sqlite3 database expecting three columns (browsername, title, url)
 # ARGS: "browsername" "file" "query"
-function cacheHistory() {
+function cache_history() {
     local _file=${1}
     local _query=${2}
     # shellcheck disable=SC2154
@@ -45,7 +45,7 @@ function cacheHistory() {
 }
 
 # Wrap getting history so we can call it only if the cache is old
-generateHistory() {
+generate_history() {
     if [[ -f "${_cache_file}" ]]; then
         if [ $(($(date +%s) - $(date +%s -r "${_cache_file}"))) -lt 180 ]; then
             return 0
@@ -58,19 +58,19 @@ generateHistory() {
     _chromium_history="${HOME}/.config/chromium/Default/History"
     if [[ -f ${_chromium_history} ]]; then
         SQL="SELECT 'Chromium', title, url FROM urls where url like 'http%';"
-        cacheHistory "${_chromium_history}" "${SQL}" "chromium"
+        cache_history "${_chromium_history}" "${SQL}" "chromium"
     fi
 
     _brave_history="${HOME}/.config/BraveSoftware/Brave-Browser/Default/History"
     if [[ -f ${_brave_history} ]]; then
         SQL="SELECT 'Brave', title, url FROM urls where url like 'http%';"
-        cacheHistory "${_brave_history}" "${SQL}" "brave"
+        cache_history "${_brave_history}" "${SQL}" "brave"
     fi
 
     _qutebrowser_history="${HOME}/.local/share/qutebrowser/history.sqlite"
     if [[ -f ${_qutebrowser_history} ]]; then
         SQL="SELECT 'Qutebrowser', title, url FROM history where url like 'http%';"
-        cacheHistory "${_qutebrowser_history}" "${SQL}" "qutebrowser"
+        cache_history "${_qutebrowser_history}" "${SQL}" "qutebrowser"
     fi
 
     if [[ -d "${HOME}/.mozilla/firefox" ]]; then
@@ -78,7 +78,7 @@ generateHistory() {
         cd "${HOME}/.mozilla/firefox"
         for db in */places.sqlite; do
             DB=$(realpath "${db}")
-            cacheHistory "${DB}" "${SQL}" "firefox"
+            cache_history "${DB}" "${SQL}" "firefox"
         done
     fi
 
@@ -92,7 +92,7 @@ generateHistory() {
 main() {
     local list=""
     # History list is formed by using grep "http" from the history table.
-    generateHistory
+    generate_history
     histlist=$(cat "${_cache_file}.sorted")
 
     if [[ -f ${_quickmarks_file} ]]; then

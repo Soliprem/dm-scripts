@@ -16,65 +16,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     exit 1
 fi
 
-###########################
-#   Configuration stuff   #
-###########################
-
-get_local_config() {
-    # Do some subshell magic finding out where the script we are running
-    # is located and checking if ../config is a dir relative to the script
-    echo "$(
-        cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")./"
-        if [[ -d "${PWD}/config" ]]; then
-            echo "${PWD}/config"
-        fi
-    )"
-}
-
-get_config() {
-    local _config_files=()
-    local _local_conf
-    _local_conf="$(get_local_config)"
-
-    # add User config path
-    _config_files+=("${HOME}/.config/dmscripts/config")
-
-    # Add git-repo relative config path (if exits)
-    [[ -f "${_local_conf}/config" ]] && _config_files+=("${_local_conf}/config")
-
-    # Add global installed config path
-    _config_files+=("/etc/dmscripts/config")
-
-    for conf in "${_config_files[@]}"; do
-        if [[ -f ${conf} ]]; then
-            echo "${conf}"
-            return
-        fi
-    done
-}
-
-# Check if config has updates that should be displayed to the user
-check_updated_config() {
-    local _base_file
-    local _config_file
-    _base_file=-1
-    [[ -f /etc/dmscripts/config ]] && _base_file="/etc/dmscripts/config"
-    _local_conf="$(get_local_config)"
-    [[ -f "${_local_conf}/config" ]] && _base_file=${_local_conf}/config
-    _config_file=$(get_config)
-
-    [[ "${_config_file}" == "${_base_file}" ]] && return
-
-    _config_file_revision=$(grep "^_revision=" "${_config_file}")
-    _base_file_revision=$(grep "^_revision=" "${_base_file}")
-
-    if [[ ! "${_config_file_revision}" == "${_base_file_revision}" ]]; then
-        diff -y "${_config_file}" "${_base_file}" | less
-        echo "${_config_file}  > ${_base_file}"
-        echo "New revision of the configuration detected, please review and set ${_base_file_revision} in ${_config_file} when done"
-    fi
-}
-
 ######################
 #   Error handling   #
 ######################
@@ -105,7 +46,6 @@ err() {
 #}
 
 # Function to copy to clipboard with different tools depending on the display server
-
 cp2cb() {
     case "$XDG_SESSION_TYPE" in
     'x11') xclip -r -selection clipboard ;;
@@ -194,9 +134,9 @@ Type $(basename "$0") -h for help" >/dev/stderr
     echo "${DMENU}"
 }
 
-#########################################
-# Experimental Simpler Boilerplate Code #
-#########################################
+####################
+# Boilerplate Code #
+####################
 
 # this function will source the dmscripts config files in the order specified below:
 #
@@ -205,42 +145,41 @@ Type $(basename "$0") -h for help" >/dev/stderr
 # 2. $XDG_CONFIG_HOME/dmscripts/config || $HOME/.config/dmscripts/config - For local edits
 # 3. /etc/dmscripts/config - For the gloabl/default configuration
 #
-# Note that if ../config/config is a real file then we will source it and immediately exit as
-# developers should not be having other configurations running on the system.
+# Only 1 file is ever sourced
 
 # this warning is simply not necessary anywhere in the scope
 # shellcheck disable=SC1091
 source_dmscripts_configs() {
-    # developers should not have other configurations running for development purposes so we exit
-    if [ -f "../config/config" ]; then
-        source "../config/config"
-        return 0
-    fi
-
+    # this is to ensure this variable is defined
     XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-}"
-    # we let this one run fine because in contrast to before, we want defaults in case
-    # a user unsets a variable by mistake, for example.
 
-    [ -f "/etc/dmscripts/config" ] && source "/etc/dmscripts/config"
+    [ -f "../config/config" ] && source "../config/config" && return 0
     [ -z "$XDG_CONFIG_HOME" ] && [ -f "$HOME/.config/dmscripts/config" ] && source "$HOME/.config/dmscripts/config" && return 0
     [ -n "$XDG_CONFIG_HOME" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && source "$XDG_CONFIG_HOME/dmscripts/config" && return 0
+    [ -f "/etc/dmscripts/config" ] && source "/etc/dmscripts/config"
 }
 
 # checks the base configuration file and compares it with the local configuration file
 # if the numbers are different then the code will return 0, else 1
 #
-# some variables are temporarily setup to ensure bash doesn't complain
+# this does not check the git config as it doesn't make sense
 configs_are_different() {
     local _base_file=""
     local _config_file=""
+
+    # DM_SHUTUP is a variable in the dmscript config that is intended to silence the notifications.
     DM_SHUTUP="${DM_SHUTUP:-}"
+
+    # it cannot determine if the files are different if it does not exist
     [ -f "/etc/dmscripts/config" ] && _base_file="/etc/dmscripts/config" || return 1
 
+    # this is essentially the same idea as seen previous just with different variable names
     local _xdg_config_home="${XDG_CONFIG_HOME:-}"
 
     [ -z "$_xdg_config_home" ] && [ -f "$HOME/.config/dmscripts/config" ] && _config_file="$HOME/.config/dmscripts/config"
     [ -n "$_xdg_config_home" ] && [ -f "$XDG_CONFIG_HOME/dmscripts/config" ] && _config_file="$XDG_CONFIG_HOME/dmscripts/config"
 
+    # if there is no other config files then just exit.
     [ -z "$_config_file" ] && return 1
 
     _config_file_revision=$(grep "^_revision=" "${_config_file}")

@@ -98,7 +98,7 @@ function mainrofi() {
     fi
 }
 
-noOpt=1
+no_opt=1
 # If script is run with '-d', it will use 'dmenu'
 # If script is run with '-f', it will use 'fzf'
 # If script is run with '-d', it will use 'rofi'
@@ -110,10 +110,10 @@ while getopts "dfrh" arg 2>/dev/null; do
     h) help ;;
     *) printf '%s\n' "Error: invalid option" "Type $(basename "$0") -h for help" ;;
     esac
-    noOpt=0
+    no_opt=0
 done
 
 # If script is run with NO argument, it will use 'dmenu'
-[ $noOpt = 1 ] && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu "$@"
+[ $no_opt = 1 ] && [[ "${BASH_SOURCE[0]}" == "${0}" ]] && maindmenu "$@"
 
 # TODO: for some reason dm-template is broken with this script, needs investigating
