@@ -2,7 +2,7 @@
 #
 # Script name: dm-radio
 # Description: Choose between online radio stations; stations defined in dmscripts config.
-# Dependencies: dmenu, fzf, rofi, mpv, notify-send, youtube-dl
+# Dependencies: dmenu, fzf, rofi, mpv, notify-send, yt-dlp
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Derek Taylor
