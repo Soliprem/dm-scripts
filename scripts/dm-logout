@@ -62,7 +62,6 @@ main() {
     'Logout')
         if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?")" == "Yes" ]]; then
             for manager in "${managers[@]}"; do
-                qtile cmd-obj -o cmd -f shutdown || echo "Qtile was not running."
                 loginctl kill-user "$UID"
             done
         else
