@@ -62,6 +62,8 @@ main() {
     'Logout')
         if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?")" == "Yes" ]]; then
             for manager in "${managers[@]}"; do
+                killall emacs || echo "Emacs is not running."
+                killall lxsession || echo "Lxsession is not running"
                 pkill -u "$USER" && loginctl kill-user "$UID"
             done
         else
