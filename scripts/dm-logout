@@ -70,7 +70,7 @@ main() {
         ;;
     'Lock screen')
         # shellcheck disable=SC2154
-        ${logout_locker}
+        ${DMLOCKER}
         ;;
     'Reboot')
         if [[ "$(echo -e "No\nYes" | ${MENU} "${choice}?")" == "Yes" ]]; then
