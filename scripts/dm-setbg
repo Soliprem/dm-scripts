@@ -67,6 +67,7 @@ main() {
             echo "$wallpaper" >"$HOME/.cache/wall"
             valid_paper="$(printf "Yes\nNo" | ${MENU} "Do you like the new wallpaper?")"
         done
+            betterlockscreen -u "$(cat "$HOME"/.cache/wall)" || echo "Betterlockscreen image could not be created."
         ;;
     "Exit") echo "Program terminated" && exit 1 ;;
     *) err "Invalid choice" ;;
