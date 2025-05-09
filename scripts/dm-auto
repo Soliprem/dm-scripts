@@ -66,7 +66,7 @@ addauto() {
           tput sgr0
           printf "%s\n\n" " added to autostart directory."
           progname=$(basename "$i" | sed 's/.desktop//')
-          notify-send "Removed From Autostart" "${progname} removed from autostart directory." \
+          notify-send "Added To Autostart" "${progname} added to autostart directory." \
             -i starred
       done
     else
@@ -90,7 +90,7 @@ rmauto() {
           tput sgr0
           printf "%s\n\n" " removed from autostart directory."
           progname=$(basename "$i" | sed 's/.desktop//')
-          notify-send "Added To Autostart" "${progname} added to autostart directory." \
+          notify-send "Removed From Autostart" "${progname} removed from autostart directory." \
             -i dialog-error
       done
     else
