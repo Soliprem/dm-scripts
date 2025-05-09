@@ -55,13 +55,14 @@ listauto() {
 addauto() {
     selected_file=$(${MENU} "Add program to autostart: " < <(printf "%s\n" "${desktop_files[@]}"))
     if [[ -n "$selected_file" ]]; then
+      # shellcheck disable=SC2207,SC2116
       selected_array=($(echo "$selected_file"))
       for i in "${selected_array[@]}"; do
           tput setaf 5 bold
           printf "%s" "✓ "
           tput setaf 5 bold
           cp "$i" ~/.config/autostart/
-          printf "%s" "$(basename $i)"
+          printf "%s" "$(basename "$i")"
           tput sgr0
           printf "%s\n\n" " added to autostart directory."
           progname=$(basename "$i" | sed 's/.desktop//')
@@ -78,13 +79,14 @@ rmauto() {
     selected_file=$(${MENU} "Remove program from autostart: " < <(printf "%s\n" "${autostart_files[@]}"))
 
     if [[ -n "$selected_file" ]]; then
+      # shellcheck disable=SC2207,SC2116
       selected_array=($(echo "$selected_file"))
       for i in "${selected_array[@]}"; do
           tput setaf 9 bold
           printf "%s" "✗ "
           tput setaf 9 bold
           rm ~/.config/autostart/"$i"
-          printf "%s" "$(basename $i)"
+          printf "%s" "$(basename "$i")"
           tput sgr0
           printf "%s\n\n" " removed from autostart directory."
           progname=$(basename "$i" | sed 's/.desktop//')
