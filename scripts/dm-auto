@@ -101,7 +101,6 @@ main() {
         "Add a program to autostart" 
         "Remove a program from autostart" 
         "List contents of autostart directory"
-        "Get help information about this program"
         "Quit")
     #menu=$(${MENU} "What do you want to do? " < <(printf "%s\n" "${options[@]}"))
 
@@ -118,10 +117,6 @@ main() {
              ;;
          "List contents of autostart directory")
              listauto
-	     exit
-             ;;
-         "Get help information about this program")
-             $0 -h
 	     exit
              ;;
          "Quit")
