@@ -3,3 +3,4 @@ dmscripts/
 src/
 pkg/
 man/*.gz
+result
