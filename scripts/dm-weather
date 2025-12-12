@@ -6,37 +6,36 @@
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: HostGrady
+#               Derek Taylor
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
-else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+
+source_dmscripts_configs
+
+if configs_are_different; then
+    echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
+    sleep 1
 fi
 
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
-
 main() {
-  # Here we obtain the location from the list in the config
-  # As this is loaded from other file it is technically not defined
-  # shellcheck disable=SC2154
-  _location="$(printf '%s\n' "${!weather_location[@]}" | ${DMENU} "Where do you want to see the weather?")"
+    # Here we obtain the location from the list in the config
+    # As this is loaded from other file it is technically not defined
+    # shellcheck disable=SC2154
+    _location="$(printf '%s\n' "${weather_locations}" | ${MENU} "Where do you want to see the weather?")"
+    echo "$_location"
 
-  # If $weather_opts is unset, give it an empty value
-  weather_opts+=''
+    # If $weather_opts is unset, give it an empty value
+    weather_opts+=''
 
-  # Curl wttr.in, a CLI weather app.
-  # TODO: Replace YAD with some simplified notification
-  curl -s "https://wttr.in/\"${weather_location[${_location}]}\"?T&${weather_opts}" | yad --text-info
+    # Curl wttr.in, a CLI weather app.
+    curl -s "https://wttr.in/${_location// /%20}?T&${weather_opts}" | yad --text-info --maximized
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+MENU="$(get_menu_program "$@")"
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main

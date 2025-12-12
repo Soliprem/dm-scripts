@@ -1,9 +1,25 @@
 # Soliprem's Dmenu Scripts (dmscripts)
 This is a fork of DTs project "dmscripts". It was detatched beacuse it wants to add scripts that wouldn't make it to upstream.
 
+![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x630.png "dmscripts")
+
+# Table of Contents
+1. [Dmenu Scripts](#dmscripts)
+2. [Important](#important)
+3. [Contributing](#contributing)	
+4. [Issues](#issues)	
+5. [Dependencies](#dependencies)
+6. [Installation](#installation)
+7. [Configuration](#configuration)
+	
+
+# dmscripts
+
+dmscripts originally began life as a collection of scripts designed to use dmenu, but not everyone wants to use dmenu as a launcher/menu.  So, dmscripts now works with rofi and fzf as well as dmenu.  For most scripts, simply pass the '-d', '-f' or '-r' options to select whether the script uses dmenu, fzf or rofi.  If no option is given to the script, it will default to using dmenu.
+
 The scripts included in this repo are:
 
-+ dm-bookman - Search your qutebrowser bookmarks, quickmarks and history urls.
++ dm-bookman - Search your browser bookmarks, quickmarks and history urls.
 + dm-colpick - Copy a color's hex value to your clipboard
 + dm-confedit - Choose from a list of configuration files to edit.
 + dm-currencies - Convert prices between currencies.
@@ -12,11 +28,13 @@ The scripts included in this repo are:
 + dm-hub - A hub from where you can run all the scripts from.
 + dm-ip - Get IP of interface or external IP
 + dm-kill - Search for a process to kill.
++ dm-lights - A tool to manage your backlights.
 + dm-logout - Logout, shutdown, reboot or lock screen.
 + dm-maim - A GUI to maim using dmenu.
 + dm-man - Search for a manpage or get a random one.
 + dm-music - Dmenu as your music player
 + dm-note - Store multiple one-line texts or codes and copy one of them when needed.
++ dm-pipewire-out-switcher - Switch default output for pipewire
 + dm-radio - Choose between online radio stations with dmenu.
 + dm-record - Records audio, video and webcam.
 + dm-reddit - Dmenu as a reddit viewer using reddio. *STILL A WORK IN PROGRESS*
@@ -36,14 +54,6 @@ The scripts included in this repo are:
 
 ![Screenshot of dmenu](https://gitlab.com/dwt1/dotfiles/raw/master/.screenshots/dmenu-distrotube01.png)
 
-# Table of Contents
-
-1. [Contributing](#contributing)	
-2. [Issues](#issues)	
-3. [Dependencies](#dependencies)
-4. [Installation](#installation)
-5. [Configuration](#configuration)
-	
 # IMPORTANT!
 
 When we write scripts, we test with a default dmenu configuration (or DT's config). This means 
@@ -164,7 +174,7 @@ Being a free/libre software project, you may make modifications to the source co
 
 ### Changing the Config Location
 
-If you could like to change config location you can add custom search path into the array in function `get_config` in `_dm-helper.sh`
+If you would like to change the config location, you can add a custom search path into the array in function `get_config` in `_dm-helper.sh`
 
 ```bash
 config_dirs+=(
@@ -172,4 +182,18 @@ config_dirs+=(
 "${HOME}/.config/dmscripts/config"
 "/etc/dmscripts/config"
 )
+```
+
+## Some Quirks With Certain Scripts
+
+### dm-bookman
+
+This script currently works on Qutebrowser, Brave, Chromium and Firefox. But when you run the script for the first time, sometimes it does not cache any of your browser's bookmarks and/or history. This is likely due to the browser's database being locked because you already have the browser open.  Make sure the browser isn't running when you run `dm-bookman` for the first time so it can properly read the browser's database and cache it for `dm-bookman` to use.
+
+### dm-music
+
+This script depends on the `mpd` daemon to already be running and the `mpc` command line music player to be installed. To start the `mpd` daemon, open a terminal and run:
+
+```
+mpd &
 ```

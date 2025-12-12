@@ -19,6 +19,7 @@ You are expected to have these programs installed on the system:
 + bash - We only write bash scripts. No fish, zsh, POSIX sh or any other shells are permissible to use. We use bashisms in the scripts so any attempt to run on a bash-incompatible shell is on you.
 + dmenu - Our scripts are tailored to dmenu users first, if it doesn't work on a default dmenu installation and using the default settings we use in the dmscripts config, it shouldn't be submitted.
 + shellcheck - **WE EXPECT TESTING!** Please do not send us random, buggy and untested code. Shellcheck is a minimal Haskell program to check for errors. ```shellcheck -x your-script```
++ shfmt - our scripts require a consistent formatting structure, use the following command in the scripts directory when contributing to ensure styling remains consistent ```shfmt -bn -l -i=4 -ln=bash -w .```, do not format the config file.
 
 This project also expects a few other things of you:
 
@@ -31,43 +32,9 @@ This project also expects a few other things of you:
 
 All scripts must be named in the format ```dm-[scriptname]```. Avoid naming conflicts if possible.
 
-Please use the following boiler code to start writing from:
+You can generate boilerplate by using ./dm-template and selecting the contrib option.
 
-```bash
-#!/usr/bin/env bash
-#
-# Script name: 
-# Description: 
-# Dependencies: 
-# GitLab: https://www.gitlab.com/dwt1/dmscripts
-# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
-# Contributors: 
-
-# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
-# if certain things happen, which is a good thing.  Otherwise, we can
-# get hidden bugs that are hard to discover.
-
-set -euo pipefail
-
-_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
-else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
-fi
-
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
-
-main() {
-  # Your code here
-}
-
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
-```
+It is important to follow the style of the template above.  Especially important is including in the comments the lines that begin with "# Description:" and "# Dependencies" since these are used to display help information when the script is run with the '-h' option.
 
 In the testing phase of the script writing process, run the command ```shellcheck -x your-script``` and attempt to fix any errors that come up. 
 
@@ -78,9 +45,9 @@ Occasionally however, we want the shell script to behave in a way that shellchec
 # your code here
 ```
 
-In the output you should recieve an error code which matches the SCxxxx format. The x's would be numbers.
+In the output you should receive an error code which matches the SCxxxx format. The x's would be numbers.
 
-In the script writing process we expect consistent indentation. Preferably, use TWO spaces instead of tabs.
+In the script writing process we expect consistent indentation. Run ```shfmt -bn -l -i=4 -ln=bash -w .``` on your code to ensure it matches our style guidelines. You do not have to run the command on the config file as that currently has weird errors.
 
 Finally we expect you to update the existing documentation if you can do that. This includes: README.md, man.org and the code itself. **Scripts are sorted in alphabetical order**
 
@@ -96,9 +63,9 @@ $ git commit -am "your message here"
 
 Patches should ideally try to focus on one goal if possible. This is to avoid conflicts.
 
-After commiting push and then make a merge request explaining why your patch should be merged into upsteam. 
+After committing push and then make a merge request explaining why your patch should be merged into upsteam. 
 
-(Notes: advanced use cases may require seperate flags)
+(Notes: advanced use cases may require separate flags)
 
 ```bash
 $ git push 

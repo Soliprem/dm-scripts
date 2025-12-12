@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # Script name: dm-radio
-# Description: Choose between online radio stations with dmenu.
-# Dependencies: dmenu, mpv, notify-send, youtube-dl
+# Description: Choose between online radio stations; stations defined in dmscripts config.
+# Dependencies: dmenu, fzf, rofi, mpv, notify-send, yt-dlp
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Derek Taylor
@@ -12,53 +12,60 @@
 # get hidden bugs that are hard to discover.
 set -euo pipefail
 
-_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
-if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
-else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+
+source_dmscripts_configs
+
+if configs_are_different; then
+    echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
+    sleep 1
 fi
 
-# script will not hit this if there is no config-file to load
-# shellcheck disable=SC1090
-source "$(get_config)"
-
 menu() {
-  printf '%s\n' "Quit"
-  # As this is loaded from other file it is technically not defined.
-  # shellcheck disable=SC2154
-  printf '%s\n' "${!radio_stations[@]}" | sort
+    printf '%s\n' "Quit"
+    # As this is loaded from other file it is technically not defined.
+    # shellcheck disable=SC2154
+    printf '%s\n' "${!radio_stations[@]}" | sort
 }
 
 # Functions for sending notification messages
 start_radio() {
-  notify-send "Starting dm-radio" "Playing station: $1. 🎶"
+    notify-send "Starting dm-radio" "Playing station: $1. 🎶"
 }
 
 end_radio() {
-  notify-send "Stopping dm-radio" "You have quit dm-radio. 🎶"
+    notify-send "Stopping dm-radio" "You have quit dm-radio. 🎶"
 }
 
 main() {
-  # Choosing a radio station from array sourced in 'config'.
-  choice=$(menu | ${DMENU} 'Choose radio station:' "$@") || exit 1
+    if [ -z "${!radio_stations[*]}" ]; then
+        notify-send "dm-radio: BREAKING CHANGES" "Due to breaking changes you must edit all declare statements in your config to include the g option. declare -A -> declare -Ag, declare -a -> declare -ag"
+        echo "$(date): dm-radio: BREAKING CHANGES: Due to breaking changes you must edit all declare statements in your config to include the g option.
+are -A -> declare -Ag
+are -a -> declare -ag" >>"$DM_CONFIG_DIFF_LOGFILE"
+        sleep 2
+        exit 1
+    fi
 
-  case $choice in
+    # Choosing a radio station from array sourced in 'config'.
+    choice=$(menu | ${MENU} 'Choose radio station:') || exit 1
+
+    case $choice in
     Quit)
-      end_radio ;
-      pkill -f http
-      exit
-      ;;
+        end_radio
+        pkill -f http
+        exit
+        ;;
     *)
-      pkill -f http || echo "mpv not running."
-      start_radio "$choice" ;
-      mpv "${radio_stations["${choice}"]}"
-      return
-      ;;
-  esac
+        pkill -f http || echo "mpv not running."
+        start_radio "$choice"
+        mpv --volume="${DMRADIOVOLUME:-100}" "${radio_stations["${choice}"]}"
+        return
+        ;;
+    esac
 
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+MENU="$(get_menu_program "$@")"
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
