@@ -41,12 +41,12 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       # 1. Home Manager Config
-      (lib.mkIf (options ? home.packages) {
+      (lib.mkIf (config ? home.packages) {
         home.packages = [ finalPackage ];
       })
 
       # 2. NixOS System Config
-      (lib.mkIf (options ? environment.systemPackages) {
+      (lib.mkIf (config ? environment.systemPackages) {
         environment.systemPackages = [ finalPackage ];
       })
     ]
