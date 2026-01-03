@@ -24,8 +24,6 @@
           gawk
           findutils
           bash
-          dmenu
-          rofi
           fzf
           libnotify
           xclip
