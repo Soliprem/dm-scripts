@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Script name: dm-documents
+# Description: Search for a process to kill.
+# Dependencies: dmenu
+# GitLab: https://www.gitlab.com/dwt1/dmscripts
+# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
+# Contributors: Derek Taylor, HostGrady, Soliprem
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+init_dmscript "$@"
+
+main() {
+  choice=$(fd --absolute-path -e pdf -e jpg -e png -e jpeg -e mp4 -e mp3 . -H -E "*wpg*" |
+    cut -d '/' -f4- |
+    sed -e 's/Documents/Dcs/g' \
+    -e 's/Downloads/Dwn/g' \
+    -e 's/.local/lcl/g' \
+    -e 's/Pictures/Pic/g' \
+    -e 's/Images/Img/g' |
+    sort -g |
+    ${DMENU} "File: " "$@") || exit 1
+      if [ "$choice" ]; then
+        file=$(
+        printf '%s' "$choice" |
+          sed -e 's/Dcs/Documents/g' \
+          -e 's/Dwn/Downloads/g' \
+          -e 's/lcl/.local/g' \
+          -e 's/Pic/Pictures/g' \
+          -e 's/Img/Images/g'
+        )
+        dragon-drop "$HOME"/"${file}"
+      else
+        echo "Program Terminated." && exit 0
+      fi
+    }
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
+

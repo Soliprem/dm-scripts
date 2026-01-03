@@ -22,6 +22,8 @@ let
       didyoumean
     ];
     dm-documents = with pkgs; [ zathura ];
+    dm-dragdir = with pkgs; [ dragon-drop ];
+    dm-dragdrop = with pkgs; [ dragon-drop ];
     dm-eq-profiles = with pkgs; [ easyeffects ];
     dm-hub = [ ];
     dm-ip =
