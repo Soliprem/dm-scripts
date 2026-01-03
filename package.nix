@@ -27,8 +27,7 @@ let
     ];
     dm-kill = with pkgs; [ procps ];
     dm-lights = with pkgs; [ light ];
-    dm-logout = with pkgs;
-    [
+    dm-logout = with pkgs; [
       systemd
       libnotify
     ];
@@ -39,8 +38,7 @@ let
       xorg.xrandr
     ];
     dm-man = with pkgs; [ man-db ];
-    dm-music = with pkgs;
-    [
+    dm-music = with pkgs; [
       mpc
       mpd
     ];
@@ -60,8 +58,7 @@ let
     ];
     dm-reddit = with pkgs; [ yad ];
     dm-rice = with pkgs; [ gnumake ];
-    dm-setbg = with pkgs;
-    [ imv ];
+    dm-setbg = with pkgs; [ imv ];
     dm-sounds = with pkgs; [ mpv ];
     dm-spellcheck = with pkgs; [ didyoumean ];
     dm-usbmount = [ pkgs.udisks2 ];
@@ -76,8 +73,7 @@ let
   };
 
   displayDeps = {
-    x11 = with pkgs;
-    [
+    x11 = with pkgs; [
       xclip
       xwallpaper
       sxiv
@@ -91,23 +87,32 @@ let
     both = displayDeps.x11 ++ displayDeps.wayland;
   };
 
-  baseDeps = with pkgs;
-  [
+  baseDeps = with pkgs; [
     coreutils
     gnused
     gnugrep
     gawk
     findutils
     bash
-    dmenu
     libnotify
   ];
   # If scripts is empty/null, default to all scripts
   selectedScripts = if scripts == [ ] then (builtins.attrNames scriptDeps) else scripts;
   selectedScriptDeps = lib.concatMap (name: scriptDeps.${name} or [ ]) selectedScripts;
-  selectedDisplayDeps = displayDeps.${displayServer};
+  selectedScriptDepNames = map (
+    dep: dep.pname or (builtins.parseDrvName dep.name).name
+  ) selectedScriptDeps;
+  allDisplayDeps = displayDeps.${displayServer};
 
-  finalRuntimeDeps = baseDeps ++ selectedScriptDeps ++ selectedDisplayDeps;
+  neededDisplayDeps = builtins.filter (
+    dep:
+    let
+      depName = dep.pname or (builtins.parseDrvName dep.name).name;
+    in
+    builtins.elem depName selectedScriptDepNames
+  ) allDisplayDeps;
+
+  finalRuntimeDeps = baseDeps ++ selectedScriptDeps ++ neededDisplayDeps;
 in
 stdenv.mkDerivation {
   pname = "dmscripts-custom";
