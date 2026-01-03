@@ -38,14 +38,18 @@ in
   };
 
   config = lib.mkMerge [
-    # For NixOS systems - only set if environment exists
-    (lib.mkIf (cfg.enable && (config ? environment)) {
-      environment.systemPackages = [ finalPackage ];
-    })
+    # For NixOS systems
+    (lib.mkIf cfg.enable (
+      lib.optionalAttrs (config ? environment) {
+        environment.systemPackages = [ finalPackage ];
+      }
+    ))
 
-    # For Home Manager - only set if home exists
-    (lib.mkIf (cfg.enable && (config ? home)) {
-      home.packages = [ finalPackage ];
-    })
+    # For Home Manager
+    (lib.mkIf cfg.enable (
+      lib.optionalAttrs (config ? home) {
+        home.packages = [ finalPackage ];
+      }
+    ))
   ];
 }
