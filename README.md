@@ -1,5 +1,5 @@
 # Soliprem's Dmenu Scripts (dmscripts)
-This is a fork of DTs project "dmscripts". It was detatched beacuse it wants to add scripts that wouldn't make it to upstream.
+This is a fork of DTs project "dmscripts". It was detatched beacuse it wants to add scripts that wouldn't make it to upstream, and because I wanted to package them in a nix flake.
 
 ![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x630.png "dmscripts")
 
