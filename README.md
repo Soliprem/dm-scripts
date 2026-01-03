@@ -1,199 +1,166 @@
 # Soliprem's Dmenu Scripts (dmscripts)
-This is a fork of DTs project "dmscripts". It was detatched beacuse it wants to add scripts that wouldn't make it to upstream, and because I wanted to package them in a nix flake.
+
+A fork of [DT's dmscripts](https://gitlab.com/dwt1/dmscripts) with additional Nix packaging and modular installation support.
 
 ![dmscripts](https://gitlab.com/dwt1/dmscripts/raw/master/img/logo-1920x630.png "dmscripts")
 
-# Table of Contents
-1. [Dmenu Scripts](#dmscripts)
-2. [Important](#important)
-3. [Contributing](#contributing)	
-4. [Issues](#issues)	
-5. [Dependencies](#dependencies)
-6. [Installation](#installation)
-7. [Configuration](#configuration)
-	
+## What Makes This Fork Different?
 
-# dmscripts
+This fork maintains compatibility with the original dmscripts project while adding:
 
-dmscripts originally began life as a collection of scripts designed to use dmenu, but not everyone wants to use dmenu as a launcher/menu.  So, dmscripts now works with rofi and fzf as well as dmenu.  For most scripts, simply pass the '-d', '-f' or '-r' options to select whether the script uses dmenu, fzf or rofi.  If no option is given to the script, it will default to using dmenu.
+- **Nix Flake Support**: First-class Nix integration with a proper flake
+- **NixOS Module**: System-wide installation via NixOS configuration
+- **Home Manager Module**: User-level installation for Home Manager
+- **Modular Installation**: Install only the scripts you need
+- **Display Server Filtering**: Choose X11-only, Wayland-only, or both dependencies
 
-The scripts included in this repo are:
+These additions make dmscripts easier to integrate into Nix-based workflows without modifying the core functionality of the original scripts.
 
-+ dm-bookman - Search your browser bookmarks, quickmarks and history urls.
-+ dm-colpick - Copy a color's hex value to your clipboard
-+ dm-confedit - Choose from a list of configuration files to edit.
-+ dm-currencies - Convert prices between currencies.
-+ dm-dictionary - Simple dictionary script
-+ dm-documents - Searches for pdf files and opens them with the pdf viewer
-+ dm-hub - A hub from where you can run all the scripts from.
-+ dm-ip - Get IP of interface or external IP
-+ dm-kill - Search for a process to kill.
-+ dm-lights - A tool to manage your backlights.
-+ dm-logout - Logout, shutdown, reboot or lock screen.
-+ dm-maim - A GUI to maim using dmenu.
-+ dm-man - Search for a manpage or get a random one.
-+ dm-music - Dmenu as your music player
-+ dm-note - Store multiple one-line texts or codes and copy one of them when needed.
-+ dm-pipewire-out-switcher - Switch default output for pipewire
-+ dm-radio - Choose between online radio stations with dmenu.
-+ dm-record - Records audio, video and webcam.
-+ dm-reddit - Dmenu as a reddit viewer using reddio. *STILL A WORK IN PROGRESS*
-+ dm-rice - WIP to change colorschemes of WMs etc
-+ dm-setbg - A wallpaper setting utility using dmenu, xwallpaper and sxiv
-+ dm-sounds - Choose an ambient background to play.
-+ dm-spellcheck - Script to check spellings
-+ dm-specials - a script to have special strings
-+ dm-translate - Translate using Google Translate (through Lingva Translate)
-+ dm-usbmount - mount/unmount usb drives using dmenu. No fancy daemon required
-+ dm-weather - Simple graphical weather app
-+ dm-websearch - Search various search engines (inspired by surfraw).
-+ dm-wifi - Connect to wifi using dmenu.
-+ dm-wiki - Search an offline copy of the Arch Wiki.
-+ dm-youtube - Youtube subscriptions without an account or the API tying you down.
-+ \_dm-helper.sh Helper scripts adding functionality to other scripts
+## About dmscripts
 
-![Screenshot of dmenu](https://gitlab.com/dwt1/dotfiles/raw/master/.screenshots/dmenu-distrotube01.png)
+Originally created by [Derek Taylor (DistroTube)](https://gitlab.com/dwt1/dmscripts), dmscripts is a collection of bash scripts designed to work with dmenu, rofi, and fzf as menu systems. The scripts provide quick access to common tasks like:
 
-# IMPORTANT!
+- Browser bookmark management
+- System logout/shutdown/reboot
+- Screenshot tools
+- Wallpaper selection
+- Web searches
+- WiFi connection
+- And many more utilities
 
-When we write scripts, we test with a default dmenu configuration (or DT's config). This means 
-potential issues with other patches or dmenu alternatives may be missed by us. Please feel free to
-patch the program yourself or see if you can figure out why the patch/program is incompatible and
-either take it upstream or fix your version.
+For most scripts, simply pass `-d`, `-f`, or `-r` to select dmenu, fzf, or rofi respectively. If no option is given, dmenu is the default.
 
-That being said, we are making an effort to improve compatibility with new software and technology
-like Wayland and dmenu alternatives however we need testers. Please write issues about Wayland
-support and support for dmenu alternatives or comment on existing issues releated. 
+## Installation
 
-## Patches to avoid:
+### Using Nix Flakes
 
-+ Case insensitive 
+Add this flake to your system:
+```nix
+{
+  inputs = {
+    dmscripts.url = "gitlab:soliprem/dmscripts";
+    # or use a specific branch/commit
+  };
+}
+```
 
-Case insensitive is a patch that removes the -i flag and makes insensitive casing the default
-behaviour, this needs to be reverted if you wish to use dmscripts in the default configuration.
+#### NixOS System-Wide
+```nix
+{
+  imports = [ inputs.dmscripts.nixosModules.default ];
 
-## Programs to avoid:
+  programs.dmscripts = {
+    enable = true;
+    displayServer = "wayland";  # or "x11" or "both" (default)
+    scripts = [  # Leave empty to install all
+      "dm-bookman"
+      "dm-colpick"
+      "dm-websearch"
+      # ... add only what you need
+    ];
+    manPages = true;  # Install man pages (default: false)
+  };
+}
+```
 
-Currently, none.
+#### Home Manager
+```nix
+{
+  imports = [ inputs.dmscripts.homeManagerModules.default ];
 
-# Contributing
+  programs.dmscripts = {
+    enable = true;
+    displayServer = "wayland";
+    scripts = [ ];  # Empty list installs all scripts
+  };
+}
+```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+### Traditional Installation (Arch Linux)
 
-# Issues
-
-See [ISSUES.md](ISSUES.md)
-
-# Dependencies
-
-Of course, dmenu is a dependency for all of these scripts.  To see the dependencies of each individual script, check the top commented block of text in each script. For installing you will need pandoc and, of course, git.
-
-# Installation
-
-## Installation on Arch
-
-If you are using Arch, clone the repository then go through the manual build process to install the scripts. Run the following commands:
-
+For non-Nix systems, follow the [original installation instructions](https://gitlab.com/dwt1/dmscripts#installation):
 ```bash
-$ git clone https://gitlab.com/dwt1/dmscripts.git
-$ cd dmscripts
-$ makepkg -cf
-$ sudo pacman -U *.pkg.tar.zst
+git clone https://gitlab.com/soliprem/dmscripts.git
+cd dmscripts
+makepkg -cf
+sudo pacman -U *.pkg.tar.zst
 ```
 
-Once installed, the scripts should behave like any other command and can be run by typing the script's name.
-
-NOTE: When installing dmscripts-git, you will see a list of Haskell dependencies that will be installed. This is because one of the make dependencies, pandoc, is written in Haskell. Simply enter "y" on the prompt "Remove make dependencies after install" and those programs should go away. Alternatively, [this AUR package](https://aur.archlinux.org/packages/pandoc-bin/) can be downloaded and used as a drop-in replacement if you wish to use the program afterwards.
-
-## Installation on Other Linux Distributions
-
-All you need to do is clone this repository and run setup. Run the following commands:
-
+### Other Linux Distributions
 ```bash
-$ git clone https://gitlab.com/dwt1/dmscripts.git
-$ cd dmscripts
-$ sudo make clean build
-$ sudo make install
+git clone https://gitlab.com/soliprem/dmscripts.git
+cd dmscripts
+sudo make clean build
+sudo make install
 ```
 
-Once installed, the scripts should behave like any other command and can be run by typing the script's name. It is important to note however that the dependencies are not installed by default, that is up to YOU to do before installing.
+## Configuration
 
-NOTE: Some distributions require the Haskell programming language to be installed as pandoc is a Haskell program. If you wish to use the software without installing Haskell, we recommend [downloading a static build](https://github.com/jgm/pandoc/releases). A guide for installation can be found [on the pandoc github](https://github.com/jgm/pandoc/blob/2.14.0.3/INSTALL.md).
-
-## Non-installation
-
-If you wish to try the scripts without installing, you can use dm-hub:
-for the scripts to work you need to have the config-file in one of three locations:
-+ /etc/dmscripts/config
-+ ../config/config (path relative to scripts in git-repo)
-+ ~/.config/dmscripts/config
-
+Copy the config file to your user directory:
 ```bash
-$ bash /path/to/dm-hub
+cp -riv config/ "$HOME"/.config/dmscripts
 ```
 
-To run a script without using the hub:
+Edit `~/.config/dmscripts/config` to customize:
+- Menu programs (dmenu, rofi, tofi, etc.)
+- Applications (browser, terminal, editor, locker)
+- Script-specific settings
+- Custom lists and arrays
 
-```bash
-$ bash /path/to/script
+See the [Configuration section in the original README](https://gitlab.com/dwt1/dmscripts#configuration) for detailed configuration options.
+
+## Available Scripts
+
+All scripts from the upstream project are included:
+
+- **dm-bookman** - Browser bookmark/quickmark/history search
+- **dm-colpick** - Color picker (copy hex values)
+- **dm-confedit** - Configuration file manager
+- **dm-dictionary** - Dictionary lookup
+- **dm-documents** - PDF file searcher
+- **dm-hub** - Launch hub for all scripts
+- **dm-ip** - Get IP information
+- **dm-kill** - Process killer
+- **dm-logout** - Logout/shutdown/reboot menu
+- **dm-maim** - Screenshot utility
+- **dm-man** - Man page browser
+- **dm-music** - MPD music player interface
+- **dm-note** - Note storage and retrieval
+- **dm-radio** - Online radio player
+- **dm-setbg** - Wallpaper setter
+- **dm-websearch** - Multi-engine web search
+- **dm-wifi** - WiFi connection manager
+- **dm-youtube** - YouTube subscription manager
+- And more...
+
+Run `dm-hub` to access all scripts from a single menu.
+
+## Nix Module Options
+```nix
+programs.dmscripts = {
+  enable = true;             # Enable dmscripts
+  displayServer = "both";    # "x11", "wayland", or "both"
+  scripts = [ ];             # List of scripts to install (empty = all)
+  manPages = false;          # Install man pages
+};
 ```
 
-Or:
+## Contributing
 
-```bash
-$ ./path/to/script
-```
+Contributions to the Nix packaging and modules are welcome! For changes to the core scripts, please consider contributing to the [upstream project](https://gitlab.com/dwt1/dmscripts) first.
 
-# Configuration
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Currently, configuration can be done in a few ways:
-+ copying config (from repo ./config/config or /etc/dmscripts/config if installed) to ~/.config/dmscripts/config (Recommended)
-+ Via the global config file `/etc/dmscripts/config` (will cause diff when updating)
-	+ Maintenance
-+ Via editing the source code (not recommended)
-	+ Changing the Config Location
+## Credits
 
-## The Global Config
+- **Original Author**: [Derek Taylor (DistroTube)](https://gitlab.com/dwt1)
+- **Original Repository**: https://gitlab.com/dwt1/dmscripts
+- **Nix Packaging**: Soliprem
 
-Currently only a "global" config is installed to `/etc/dmscripts/config`.
-To install a user-specific version of the config run the following command:
+This fork exists to provide better Nix integration while staying synchronized with upstream improvements.
 
-```bash
-$ cp -riv config/ "$HOME"/.config/dmscripts
-```
+## License
 
-The config file is a bash script however it is very simple to understand and several comments are left which explains what everything in the config file does. If you are still confused, a general word of advice that you should just copy one of the lines in the config and modify it to see what it does.
+GNU GPLv3 - See [LICENSE](LICENSE)
 
-### Maintenance
-
-As we are currently adding a lot of scripts to the repository and making patches very regularly, the advice is to check up on the repo's sample config every few days and make the appropriate changes. This is especially true if you are also installing new scripts as they get added.
-
-## Editing the Source Code
-
-Being a free/libre software project, you may make modifications to the source code to fit your needs. If you need a reference, look at the config files and variables in /etc/profile for a general idea on what to look for in the source code. Please submit patches and merge requests if you see any bugs or improve the source code while you are there.
-
-### Changing the Config Location
-
-If you would like to change the config location, you can add a custom search path into the array in function `get_config` in `_dm-helper.sh`
-
-```bash
-config_dirs+=(
-"/path/to/custom/config-file"
-"${HOME}/.config/dmscripts/config"
-"/etc/dmscripts/config"
-)
-```
-
-## Some Quirks With Certain Scripts
-
-### dm-bookman
-
-This script currently works on Qutebrowser, Brave, Chromium and Firefox. But when you run the script for the first time, sometimes it does not cache any of your browser's bookmarks and/or history. This is likely due to the browser's database being locked because you already have the browser open.  Make sure the browser isn't running when you run `dm-bookman` for the first time so it can properly read the browser's database and cache it for `dm-bookman` to use.
-
-### dm-music
-
-This script depends on the `mpd` daemon to already be running and the `mpc` command line music player to be installed. To start the `mpd` daemon, open a terminal and run:
-
-```
-mpd &
-```
+All modifications maintain compatibility with the original license.
