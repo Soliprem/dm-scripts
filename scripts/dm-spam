@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# Script name: dm-spam
+# Description: Choose a ambient background sound to play.
+# Dependencies: wtype
+# GitLab: https://www.gitlab.com/dwt1/dmscripts
+# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
+# Contributors: Soliprem
+#
+# Repeats a sequence of chars for a specified amount of times
+
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+init_dmscript "$@"
+
+TEXT="$(echo test | fuzzel --dmenu -p 'spam text')"
+[ -n "$TEXT" ] || exit
+
+LOOP="$(echo 10 | fuzzel --dmenu -p 'repeat')"
+[ -n "$LOOP" ] || exit
+
+if ! [ "$LOOP" -eq "$LOOP" ]; then
+	LOOP=10
+fi
+
+sleep 1
+
+for _ in $(seq 1 $LOOP); do
+	wtype "$TEXT" -P KP_Enter
+done
+

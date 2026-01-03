@@ -87,6 +87,10 @@ let
           imv
         ]
       );
+    dm-spam = with pkgs; [
+      waylandDeps
+      [ wtype ]
+    ];
     dm-sounds = with pkgs; [ mpv ];
     dm-special = with pkgs; (x11Deps [ xclip ] ++ waylandDeps [ wl-clipboard ]);
     dm-spellcheck = with pkgs; [ didyoumean ];
