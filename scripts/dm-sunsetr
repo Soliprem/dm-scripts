@@ -15,7 +15,7 @@ source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
 init_dmscript "$@"
 
 main() {
-    PRESET="$(sunsetr preset list | ${MENU} "Choose Preset:")"
+    PRESET="$( printf "%s\ndefault" "$(sunsetr preset list)" | ${MENU} "Choose Preset:")"
 
     if ! [ "${PRESET}" ]; then
         printf 'No action selected\n' >&2
