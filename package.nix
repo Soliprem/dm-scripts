@@ -5,10 +5,10 @@
   pkgs,
   scripts ? [ ],
   displayServer ? "both",
+  manPages ? true,
 }:
 
 let
-  # --- Dependency Definitions ---
   scriptDeps = {
     dm-bookman = [ pkgs.sqlite ];
     dm-colpick = [ ];
@@ -27,7 +27,8 @@ let
     ];
     dm-kill = with pkgs; [ procps ];
     dm-lights = with pkgs; [ light ];
-    dm-logout = with pkgs; [
+    dm-logout = with pkgs;
+    [
       systemd
       libnotify
     ];
@@ -38,7 +39,8 @@ let
       xorg.xrandr
     ];
     dm-man = with pkgs; [ man-db ];
-    dm-music = with pkgs; [
+    dm-music = with pkgs;
+    [
       mpc
       mpd
     ];
@@ -58,7 +60,8 @@ let
     ];
     dm-reddit = with pkgs; [ yad ];
     dm-rice = with pkgs; [ gnumake ];
-    dm-setbg = with pkgs; [ imv ];
+    dm-setbg = with pkgs;
+    [ imv ];
     dm-sounds = with pkgs; [ mpv ];
     dm-spellcheck = with pkgs; [ didyoumean ];
     dm-usbmount = [ pkgs.udisks2 ];
@@ -68,12 +71,13 @@ let
     ];
     dm-websearch = with pkgs; [ jq ];
     dm-wifi = with pkgs; [ networkmanager ];
-    dm-wiki = with pkgs; [ arch-wiki-docs ];
+    dm-wiki = [ ];
     dm-youtube = with pkgs; [ curl ];
   };
 
   displayDeps = {
-    x11 = with pkgs; [
+    x11 = with pkgs;
+    [
       xclip
       xwallpaper
       sxiv
@@ -87,7 +91,8 @@ let
     both = displayDeps.x11 ++ displayDeps.wayland;
   };
 
-  baseDeps = with pkgs; [
+  baseDeps = with pkgs;
+  [
     coreutils
     gnused
     gnugrep
@@ -97,16 +102,12 @@ let
     dmenu
     libnotify
   ];
-
-  # --- Selection Logic ---
-  # If scripts is empty/null, default to ALL scripts
+  # If scripts is empty/null, default to all scripts
   selectedScripts = if scripts == [ ] then (builtins.attrNames scriptDeps) else scripts;
-
   selectedScriptDeps = lib.concatMap (name: scriptDeps.${name} or [ ]) selectedScripts;
   selectedDisplayDeps = displayDeps.${displayServer};
 
   finalRuntimeDeps = baseDeps ++ selectedScriptDeps ++ selectedDisplayDeps;
-
 in
 stdenv.mkDerivation {
   pname = "dmscripts-custom";
@@ -114,7 +115,7 @@ stdenv.mkDerivation {
   src = ./.;
 
   nativeBuildInputs = [ makeWrapper ];
-
+  dontBuild = true;
   installPhase = ''
     mkdir -p $out/bin $out/share/dmscripts
 
@@ -124,26 +125,32 @@ stdenv.mkDerivation {
     # Install selected scripts
     ${lib.concatMapStringsSep "\n" (name: "cp scripts/${name} $out/bin/") selectedScripts}
 
+    # Install manpage if enabled
+    ${lib.optionalString manPages ''
+      mkdir -p $out/share/man/man1
+      cp man/dmscripts.1 $out/share/man/man1/
+    ''}
+
     chmod +x $out/bin/*
     cp config/config $out/share/dmscripts/config
 
-    # --- Boilerplate Reduction & Path Patching ---
-
-    # 1. Point helper to the nix config
     substituteInPlace $out/bin/_dm-helper.sh \
       --replace "/etc/dmscripts/config" "$out/share/dmscripts/config"
 
-    # 2. Point all scripts to the absolute helper path
-    for script in $out/bin/*; do
+    # Need scripts to be able to find the helper
+    for script in $out/bin/*;
+    do
       substituteInPlace "$script" \
         --replace 'source "_dm-helper.sh"' "source $out/bin/_dm-helper.sh" \
         --replace 'source ./_dm-helper.sh' "source $out/bin/_dm-helper.sh"
     done
   '';
-
   postFixup = ''
-    for script in $out/bin/*; do
-      if [[ "$(basename $script)" != "_dm-helper.sh" ]]; then
+    for script in $out/bin/*;
+    do
+    # Can't wrap the helper or it'll hit the guard clause
+      if [[ "$(basename $script)" != "_dm-helper.sh" ]];
+      then
         wrapProgram $script \
           --prefix PATH : ${lib.makeBinPath finalRuntimeDeps}
       fi
