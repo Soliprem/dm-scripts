@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Script name: dm-sunsetr
+# Description: Switches between sunsetr presets or toggles it.
+# Dependencies: sunsetr
+# GitHub: https://github.com/soliprem/dm-scripts
+# License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
+# Contributors: Francesco Prem Solidoro
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+init_dmscript "$@"
+
+main() {
+    PRESET="$(sunsetr preset list | ${MENU} "Choose Preset:")"
+
+    if ! [ "${PRESET}" ]; then
+        printf 'No action selected\n' >&2
+        exit 0
+    fi
+    sunsetr preset "$PRESET"
+}
+
+MENU="$(get_menu_program "$@")"
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
+
