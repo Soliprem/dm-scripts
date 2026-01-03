@@ -13,7 +13,7 @@
       in
       {
         # Default package installs everything
-        packages.default = pkgs.callPackage ./package.nix { 
+        packages.default = pkgs.callPackage ./modules/package.nix { 
             scripts = []; 
             displayServer = "both"; 
         };
