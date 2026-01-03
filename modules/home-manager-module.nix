@@ -8,7 +8,7 @@
 
 let
   cfg = config.programs.dmscripts;
-  finalPackage = pkgs.callPackage ./package.nix {
+  finalPackage = pkgs.callPackage ../package.nix {
     inherit (cfg) scripts displayServer manPages;
   };
 in
