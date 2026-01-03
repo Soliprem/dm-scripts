@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  options,
   ...
 }:
 
@@ -38,17 +37,15 @@ in
     manPages = lib.mkEnableOption "manpages";
   };
 
-  config = lib.mkIf cfg.enable (
-    lib.mkMerge [
-      # 1. Home Manager Config
-      (lib.mkIf (config ? home.packages) {
-        home.packages = [ finalPackage ];
-      })
+  config = lib.mkMerge [
+    # For NixOS systems - only set if environment exists
+    (lib.mkIf (cfg.enable && (config ? environment)) {
+      environment.systemPackages = [ finalPackage ];
+    })
 
-      # 2. NixOS System Config
-      (lib.mkIf (config ? environment.systemPackages) {
-        environment.systemPackages = [ finalPackage ];
-      })
-    ]
-  );
+    # For Home Manager - only set if home exists
+    (lib.mkIf (cfg.enable && (config ? home)) {
+      home.packages = [ finalPackage ];
+    })
+  ];
 }
