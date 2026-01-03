@@ -24,9 +24,9 @@ main() {
     fi
 
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
-dym -c "$WORD" | ${DMENU} "Select Correct Spelling:" | wl-copy
+dym -c "$WORD" | ${MENU} "Select Correct Spelling:" | wl-copy
 else
-dym -c "$WORD" | ${DMENU} "Select Correct Spelling:" | xclip -selection clipboard
+dym -c "$WORD" | ${MENU} "Select Correct Spelling:" | xclip -selection clipboard
 fi
 }
 
