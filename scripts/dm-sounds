@@ -16,17 +16,9 @@
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
 # get hidden bugs that are hard to discover.
-set -euo pipefail
-
 # shellcheck disable=SC1091
 source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
-
-source_dmscripts_configs
-
-if configs_are_different; then
-    echo "$(date): configs are different" >>"$DM_CONFIG_DIFF_LOGFILE"
-    sleep 1
-fi
+init_dmscript "$@"
 
 main() {
     # Check if sounds_dir is a real directory

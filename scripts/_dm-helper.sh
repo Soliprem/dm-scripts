@@ -194,3 +194,15 @@ configs_are_different() {
 
     return 1
 }
+
+init_dmscript() {
+    set -euo pipefail
+    source_dmscripts_configs
+
+    if configs_are_different; then
+        echo "$(date): configs are different" >>"${DM_CONFIG_DIFF_LOGFILE:-/tmp/dm-config-diff.log}"
+        sleep 1
+    fi
+    
+    MENU="$(get_menu_program "$@")"
+}
