@@ -29,10 +29,9 @@ in
 
     scripts = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default =
-        [
-          # Default handled in package.nix (installs all if empty)
-        ];
+      default = [
+        # Default handled in package.nix (installs all if empty)
+      ];
       description = "List of scripts to install. If empty, installs all.";
     };
 
