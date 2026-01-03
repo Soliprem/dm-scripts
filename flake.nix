@@ -23,7 +23,7 @@
         };
       }
     ) // {
-      nixosModules.default = import ./modules/module.nix;
+      nixosModules.default = import ./modules/nixos-module.nix;
       homeManagerModules.default = import ./modules/home-manager-module.nix;
     };
 }
