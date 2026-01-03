@@ -9,9 +9,13 @@
 }:
 
 let
+  # Helper to conditionally include deps based on display server
+  x11Deps = deps: if displayServer == "x11" || displayServer == "both" then deps else [ ];
+  waylandDeps = deps: if displayServer == "wayland" || displayServer == "both" then deps else [ ];
+
   scriptDeps = {
-    dm-bookman = [ pkgs.sqlite ];
-    dm-colpick = [ ];
+    dm-bookman = with pkgs; [ sqlite ];
+    dm-colpick = with pkgs; (x11Deps [ xclip ] ++ waylandDeps [ wl-clipboard ]);
     dm-confedit = [ ];
     dm-dictionary = with pkgs; [
       translate-shell
@@ -20,29 +24,42 @@ let
     dm-documents = with pkgs; [ zathura ];
     dm-eq-profiles = with pkgs; [ easyeffects ];
     dm-hub = [ ];
-    dm-ip = with pkgs; [
-      bind
-      iproute2
-      jq
-    ];
+    dm-ip =
+      with pkgs;
+      (
+        [
+          bind
+          iproute2
+          jq
+        ]
+        ++ x11Deps [ xclip ]
+        ++ waylandDeps [ wl-clipboard ]
+      );
     dm-kill = with pkgs; [ procps ];
     dm-lights = with pkgs; [ light ];
     dm-logout = with pkgs; [
       systemd
       libnotify
     ];
-    dm-maim = with pkgs; [
-      maim
-      slop
-      xdotool
-      xorg.xrandr
-    ];
+    dm-maim =
+      with pkgs;
+      (
+        [
+          slop
+          xdotool
+        ]
+        ++ x11Deps [
+          maim
+          xorg.xrandr
+          xclip
+        ]
+      );
     dm-man = with pkgs; [ man-db ];
     dm-music = with pkgs; [
       mpc
       mpd
     ];
-    dm-note = [ ];
+    dm-note = with pkgs; (x11Deps [ xclip ] ++ waylandDeps [ wl-clipboard ]);
     dm-pipewire-out-switcher = with pkgs; [
       jq
       pulseaudio
@@ -58,10 +75,22 @@ let
     ];
     dm-reddit = with pkgs; [ yad ];
     dm-rice = with pkgs; [ gnumake ];
-    dm-setbg = with pkgs; [ imv ];
+    dm-setbg =
+      with pkgs;
+      (
+        x11Deps [
+          xwallpaper
+          sxiv
+        ]
+        ++ waylandDeps [
+          swaybg
+          imv
+        ]
+      );
     dm-sounds = with pkgs; [ mpv ];
+    dm-special = with pkgs; (x11Deps [ xclip ] ++ waylandDeps [ wl-clipboard ]);
     dm-spellcheck = with pkgs; [ didyoumean ];
-    dm-usbmount = [ pkgs.udisks2 ];
+    dm-usbmount = with pkgs; [ udisks2 ];
     dm-weather = with pkgs; [
       curl
       yad
@@ -72,21 +101,6 @@ let
     dm-youtube = with pkgs; [ curl ];
   };
 
-  displayDeps = {
-    x11 = with pkgs; [
-      xclip
-      xwallpaper
-      sxiv
-      xorg.xrandr
-    ];
-    wayland = with pkgs; [
-      wl-clipboard
-      swaybg
-      imv
-    ];
-    both = displayDeps.x11 ++ displayDeps.wayland;
-  };
-
   baseDeps = with pkgs; [
     coreutils
     gnused
@@ -94,25 +108,17 @@ let
     gawk
     findutils
     bash
+    dmenu
     libnotify
   ];
+
   # If scripts is empty/null, default to all scripts
   selectedScripts = if scripts == [ ] then (builtins.attrNames scriptDeps) else scripts;
+
+  # Collect all dependencies from selected scripts
   selectedScriptDeps = lib.concatMap (name: scriptDeps.${name} or [ ]) selectedScripts;
-  selectedScriptDepNames = map (
-    dep: dep.pname or (builtins.parseDrvName dep.name).name
-  ) selectedScriptDeps;
-  allDisplayDeps = displayDeps.${displayServer};
 
-  neededDisplayDeps = builtins.filter (
-    dep:
-    let
-      depName = dep.pname or (builtins.parseDrvName dep.name).name;
-    in
-    builtins.elem depName selectedScriptDepNames
-  ) allDisplayDeps;
-
-  finalRuntimeDeps = baseDeps ++ selectedScriptDeps ++ neededDisplayDeps;
+  finalRuntimeDeps = baseDeps ++ selectedScriptDeps;
 in
 stdenv.mkDerivation {
   pname = "dmscripts-custom";
