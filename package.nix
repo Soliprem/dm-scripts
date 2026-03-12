@@ -62,6 +62,7 @@ let
       mpd
     ];
     dm-note = with pkgs; (x11Deps [ xclip ] ++ waylandDeps [ wl-clipboard ]);
+    dm-notes = [ ];
     dm-pipewire-out-switcher = with pkgs; [
       jq
       pulseaudio
