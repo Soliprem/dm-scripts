@@ -118,6 +118,7 @@ All scripts from the upstream project are included:
 - **dm-confedit** - Configuration file manager
 - **dm-dictionary** - Dictionary lookup
 - **dm-documents** - PDF file searcher
+- **dm-hex-language** - Choose a supported language for the selected Hex model
 - **dm-hub** - Launch hub for all scripts
 - **dm-ip** - Get IP information
 - **dm-kill** - Process killer
@@ -134,6 +135,10 @@ All scripts from the upstream project are included:
 - And more...
 
 Run `dm-hub` to access all scripts from a single menu.
+
+`dm-hex-language` requires Hex to be installed separately. It reads the selected
+model's supported language codes from `hex model list --json` and keeps that
+model selected. For models that report `*`, choose `auto` or type a language code.
 
 ## Nix Module Options
 ```nix

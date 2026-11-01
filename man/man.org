@@ -30,6 +30,8 @@ A configuration manager, find and edit any config file you need.
 Search for PDFs to open.
 ** dm-eq-profiles
 Allows you to switch between predefined equalizer profiles easily.
+** dm-hex-language
+Choose from the selected Hex model's supported language codes. Models reporting * offer auto-detection or a typed language code. Requires Hex to be installed separately.
 ** dm-ip
 Get IP of interface or external IP.
 ** dm-kill

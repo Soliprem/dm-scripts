@@ -25,6 +25,7 @@ let
     dm-dragdir = with pkgs; [ dragon-drop ];
     dm-dragdrop = with pkgs; [ dragon-drop ];
     dm-eq-profiles = with pkgs; [ easyeffects ];
+    dm-hex-language = with pkgs; [ jq ];
     dm-hub = [ ];
     dm-ip =
       with pkgs;

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# Script name: dm-hex-language
+# Description: Choose a supported language for the selected Hex model.
+# Dependencies: dmenu, fzf, rofi, hex, jq, notify-send
+# GitHub: https://github.com/soliprem/dm-scripts
+# License: GPL-3.0-or-later
+# Contributors: Francesco Prem Solidoro
+
+# shellcheck disable=SC1091
+source ./_dm-helper.sh 2>/dev/null || source _dm-helper.sh 2>/dev/null
+init_dmscript "$@"
+
+main() {
+    local languages language result
+    if ! languages=$(hex model list --json | jq -er '.models[] | select(.selected) | .languages[]'); then
+        notify-send -u critical "Hex" "Could not read the selected model's languages"
+        return 1
+    fi
+
+    # Wildcard models do not enumerate languages; allow Auto or a typed code.
+    [[ "$languages" == '*' ]] && languages=auto
+    language=$(printf '%s\n' "$languages" | ${MENU} "Hex language code:") || return 0
+    [[ -n "$language" ]] || return 0
+
+    if result=$(jq -n --arg language "$language" '{"transcription.language": $language}' | hex settings apply - 2>&1); then
+        notify-send "Hex" "Dictation language: $language"
+    else
+        notify-send -u critical "Hex" "$result"
+        return 1
+    fi
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main
